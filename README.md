@@ -1,5 +1,8 @@
 # Opus
 
+[![Build Status](https://travis-ci.org/Zorbash/opus.svg?branch=master)](https://travis-ci.org/Zorbash/opus)
+[![Package Version](https://img.shields.io/hexpm/v/opus.svg)](https://hex.pm/packages/opus)
+
 A framework for pluggable business logic components.
 
 ![example-image](https://i.imgur.com/WwuyojJ.png)
