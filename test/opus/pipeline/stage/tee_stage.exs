@@ -4,14 +4,15 @@ defmodule Opus.Pipeline.Stage.TeeTest do
   defmodule TeePipeline do
     use Opus.Pipeline
 
-    tee :sideffect, with: fn
-      :raise -> raise "oops"
-      :ok -> :ok
-      :error -> :error
-      :error_tuple -> {:error, :error}
-    end
+    tee :sideffect,
+      with: fn
+        :raise -> raise "oops"
+        :ok -> :ok
+        :error -> :error
+        :error_tuple -> {:error, :error}
+      end
 
-    step :next, with: &({:next, &1})
+    step :next, with: &{:next, &1}
   end
 
   alias TeePipeline, as: Subject

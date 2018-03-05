@@ -20,8 +20,8 @@ defmodule Opus.PipelineTest do
     use Opus.Pipeline
 
     step :add_one
-    step :failing_atom,      if: :run_failing_atom?
-    step :failing_tuple,     if: :run_failing_tuple?
+    step :failing_atom, if: :run_failing_atom?
+    step :failing_tuple, if: :run_failing_tuple?
     step :failing_exception, if: :run_failing_exception?
     check :even?, if: :run_check_even?
     step :square, with: &TestMath.square/1
@@ -35,7 +35,7 @@ defmodule Opus.PipelineTest do
 
     def run_failing_exception?(42), do: true
     def run_failing_exception?(_input), do: false
-    def failing_exception(_input), do: raise "failed with exception"
+    def failing_exception(_input), do: raise("failed with exception")
 
     def run_failing_atom?(1337), do: true
     def run_failing_atom?(_input), do: false
@@ -59,23 +59,24 @@ defmodule Opus.PipelineTest do
   alias ArithmeticPipeline, as: Subject
 
   describe "pipeline?/0" do
-    assert Subject.pipeline? == true
+    assert Subject.pipeline?() == true
   end
 
   describe "stages/0" do
     test "returns a List of stages" do
-      stages = Subject.stages |> Enum.map(fn {stage, name, _} -> {stage, name} end)
+      stages = Subject.stages() |> Enum.map(fn {stage, name, _} -> {stage, name} end)
+
       assert stages == [
-        {:step, :add_one},
-        {:step, :failing_atom},
-        {:step, :failing_tuple},
-        {:step, :failing_exception},
-        {:check, :even?},
-        {:step, :square},
-        {:tee, :publish_number},
-        {:step, :double},
-        {:link, Opus.PipelineTest.LinkedPipeline}
-      ]
+               {:step, :add_one},
+               {:step, :failing_atom},
+               {:step, :failing_tuple},
+               {:step, :failing_exception},
+               {:check, :even?},
+               {:step, :square},
+               {:tee, :publish_number},
+               {:step, :double},
+               {:link, Opus.PipelineTest.LinkedPipeline}
+             ]
     end
   end
 
@@ -92,9 +93,11 @@ defmodule Opus.PipelineTest do
       {:error, %Opus.PipelineError{} = error} = Subject.call(41)
 
       assert %Opus.PipelineError{
-        error: %RuntimeError{message: "failed with exception"},
-        pipeline: Subject,
-        stage: :failing_exception, input: 42} = error
+               error: %RuntimeError{message: "failed with exception"},
+               pipeline: Subject,
+               stage: :failing_exception,
+               input: 42
+             } = error
     end
   end
 

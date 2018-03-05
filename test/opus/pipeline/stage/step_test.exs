@@ -4,12 +4,14 @@ defmodule Opus.Pipeline.Stage.StepTest do
   defmodule TestPipeline do
     use Opus.Pipeline
 
-    step :explode, if: fn
-      :boom -> true
-      _ -> false
-    end
-    step :transform, with: &({:transformed, &1})
-    step :next, with: &({:next, &1})
+    step :explode,
+      if: fn
+        :boom -> true
+        _ -> false
+      end
+
+    step :transform, with: &{:transformed, &1}
+    step :next, with: &{:next, &1}
 
     def explode(_), do: {:error, :exploded}
   end
@@ -30,8 +32,8 @@ defmodule Opus.Pipeline.Stage.StepTest do
     defmodule DuplicateStepPipeline do
       use Opus.Pipeline
 
-      step :transform, with: &([&1])
-      step :transform, with: &([&1 | &1])
+      step :transform, with: &[&1]
+      step :transform, with: &[&1 | &1]
       step :transform
 
       def transform(input), do: Enum.reverse(input)

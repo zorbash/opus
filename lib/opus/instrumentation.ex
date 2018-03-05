@@ -1,6 +1,7 @@
 defmodule Opus.Instrumentation do
   defmacro instrument(event, fun) do
     handling = __MODULE__.definstrument(fun)
+
     quote do
       @doc false
       def instrument(unquote(event), _, metrics), do: unquote(handling)
@@ -9,6 +10,7 @@ defmodule Opus.Instrumentation do
 
   defmacro instrument(event, opts, fun) do
     handling = __MODULE__.definstrument(fun)
+
     quote do
       @doc false
       def instrument(unquote(event), unquote(opts), metrics), do: unquote(handling)
@@ -30,24 +32,36 @@ defmodule Opus.Instrumentation do
     end
   end
 
-  def run_instrumented({_module, _type, _name, %{instrument?: false}}, _input, fun) when is_function(fun, 0), do: fun.()
+  def run_instrumented({_module, _type, _name, %{instrument?: false}}, _input, fun)
+      when is_function(fun, 0),
+      do: fun.()
+
   def run_instrumented({_module, _type, name, _opts} = stage, input, fun) when is_function(fun, 0) do
-    start = :erlang.monotonic_time
+    start = :erlang.monotonic_time()
     run_instrumenters(:before_stage, stage, %{stage: name, input: input})
 
     ret = fun.()
-    run_instrumenters(:stage_completed,
-                      stage,
-                      %{stage: name, input: input, result: format_result(ret), time: :erlang.monotonic_time - start})
+
+    run_instrumenters(:stage_completed, stage, %{
+      stage: name,
+      input: input,
+      result: format_result(ret),
+      time: :erlang.monotonic_time() - start
+    })
 
     ret
   end
 
   def run_instrumenters(event, {module, _type, _name, _opts} = stage, metrics) do
     case Application.get_env(:opus, :instrumentation, []) do
-      instrumenter when is_atom(instrumenter) -> do_run_instrumenters([module | [instrumenter]], event, stage, metrics)
-      instrumenters when is_list(instrumenters) -> do_run_instrumenters([module | instrumenters], event, stage, metrics)
-      _ -> do_run_instrumenters([module], event, stage, metrics)
+      instrumenter when is_atom(instrumenter) ->
+        do_run_instrumenters([module | [instrumenter]], event, stage, metrics)
+
+      instrumenters when is_list(instrumenters) ->
+        do_run_instrumenters([module | instrumenters], event, stage, metrics)
+
+      _ ->
+        do_run_instrumenters([module], event, stage, metrics)
     end
   end
 

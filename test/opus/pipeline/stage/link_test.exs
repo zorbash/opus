@@ -7,10 +7,11 @@ defmodule Opus.Pipeline.Stage.LinkTest do
   defmodule CompatiblePipeline do
     use Opus.Pipeline
 
-    step :double, with: fn
-      {:transformed, input} -> input * 2
-      input -> input * 2
-    end
+    step :double,
+      with: fn
+        {:transformed, input} -> input * 2
+        input -> input * 2
+      end
 
     step :triple, with: &(&1 * 3)
   end
@@ -18,10 +19,11 @@ defmodule Opus.Pipeline.Stage.LinkTest do
   defmodule FailingPipeline do
     use Opus.Pipeline
 
-    check :fail?, with: fn
-      0 -> false
-      _ -> true
-    end
+    check :fail?,
+      with: fn
+        0 -> false
+        _ -> true
+      end
   end
 
   defmodule LinkPipeline do
@@ -46,7 +48,8 @@ defmodule Opus.Pipeline.Stage.LinkTest do
     end
 
     test "with a failing linked module, it fails the pipeline" do
-      assert {:error, %Opus.PipelineError{pipeline: FailingPipeline, stage: :fail?}} = Subject.call(0)
+      assert {:error, %Opus.PipelineError{pipeline: FailingPipeline, stage: :fail?}} =
+               Subject.call(0)
     end
   end
 

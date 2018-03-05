@@ -21,11 +21,12 @@ defmodule Opus.Pipeline.Stage.CheckTest do
     defmodule SingleCheckFalsePipeline do
       use Opus.Pipeline
 
-      check :not_true, with: fn
-        :false -> false
-        :falsy -> nil
-        :other -> %{}
-      end
+      check :not_true,
+        with: fn
+          false -> false
+          :falsy -> nil
+          :other -> %{}
+        end
     end
 
     setup do
@@ -33,7 +34,7 @@ defmodule Opus.Pipeline.Stage.CheckTest do
     end
 
     test "with false, returns an error tuple", %{subject: subject} do
-      assert {:error, %Opus.PipelineError{stage: :not_true}} = subject.call(:false)
+      assert {:error, %Opus.PipelineError{stage: :not_true}} = subject.call(false)
     end
 
     test "with falsy, returns an error tuple", %{subject: subject} do

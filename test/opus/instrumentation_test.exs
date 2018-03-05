@@ -10,17 +10,22 @@ defmodule Opus.InstrumentationTest do
     step :add_four, with: &(&1 + 4), instrument?: false
 
     instrument :before_stage, info, fn
-      %{stage: _stage, input: -1} -> raise "oh noes"
+      %{stage: _stage, input: -1} ->
+        raise "oh noes"
+
       %{stage: _stage} = metrics ->
-        send :instrumentation_test, {:erlang.unique_integer([:positive]), :before_stage, info, metrics}
+        send :instrumentation_test,
+             {:erlang.unique_integer([:positive]), :before_stage, info, metrics}
     end
 
     instrument :stage_completed, info, fn %{time: _time} = metrics ->
-      send :instrumentation_test, {:erlang.unique_integer([:positive]), :stage_completed, info, metrics}
+      send :instrumentation_test,
+           {:erlang.unique_integer([:positive]), :stage_completed, info, metrics}
     end
 
     instrument :stage_skipped, info, fn %{stage: _stage} = metrics ->
-      send :instrumentation_test, {:erlang.unique_integer([:positive]), :stage_skipped, info, metrics}
+      send :instrumentation_test,
+           {:erlang.unique_integer([:positive]), :stage_skipped, info, metrics}
     end
 
     def add_one(input) do
@@ -36,17 +41,18 @@ defmodule Opus.InstrumentationTest do
 
   defmodule MockInstrumentation do
     def instrument(event, info, metrics) do
-      send :instrumentation_test, {:erlang.unique_integer([:positive]), __MODULE__, event, info, metrics}
+      send :instrumentation_test,
+           {:erlang.unique_integer([:positive]), __MODULE__, event, info, metrics}
     end
   end
 
   alias InstrumentedPipeline, as: Subject
 
   setup do
-    Process.register self(), :instrumentation_test
+    Process.register(self(), :instrumentation_test)
 
     on_exit fn ->
-      Application.put_env :opus, :instrumentation, nil
+      Application.put_env(:opus, :instrumentation, nil)
     end
 
     :ok
@@ -100,7 +106,7 @@ defmodule Opus.InstrumentationTest do
     end
 
     test "when an instrumentation module is provided in application config as atom, it is called" do
-      Application.put_env :opus, :instrumentation, MockInstrumentation
+      Application.put_env(:opus, :instrumentation, MockInstrumentation)
       Subject.call(0)
 
       assert_received {_, MockInstrumentation, :before_stage, %{stage: %{name: :add_one}}, _}
@@ -109,7 +115,7 @@ defmodule Opus.InstrumentationTest do
     end
 
     test "when an instrumentation module is provided in application config as list of atoms, it is called" do
-      Application.put_env :opus, :instrumentation, [MockInstrumentation]
+      Application.put_env(:opus, :instrumentation, [MockInstrumentation])
       Subject.call(0)
 
       assert_received {_, MockInstrumentation, :before_stage, %{stage: %{name: :add_one}}, _}
@@ -167,7 +173,7 @@ defmodule Opus.InstrumentationTest do
     end
 
     test "when an instrumentation module is provided in application config as atom, it is called" do
-      Application.put_env :opus, :instrumentation, MockInstrumentation
+      Application.put_env(:opus, :instrumentation, MockInstrumentation)
       Subject.call(0)
 
       assert_received {_, MockInstrumentation, :stage_completed, %{stage: %{name: :add_one}}, _}
@@ -176,7 +182,7 @@ defmodule Opus.InstrumentationTest do
     end
 
     test "when an instrumentation module is provided in application config as list of atoms, it is called" do
-      Application.put_env :opus, :instrumentation, [MockInstrumentation]
+      Application.put_env(:opus, :instrumentation, [MockInstrumentation])
       Subject.call(0)
 
       assert_received {_, MockInstrumentation, :stage_completed, %{stage: %{name: :add_one}}, _}
