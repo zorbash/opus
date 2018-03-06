@@ -87,7 +87,7 @@ defmodule Opus.Pipeline do
     callbacks = Opus.Pipeline.Registration.maybe_define_callbacks(stage_id, name, opts)
 
     quote do
-      if :erlang.function_exported(unquote(name), :pipeline?, 0) do
+      if unquote(name) == __MODULE__ || :erlang.function_exported(unquote(name), :pipeline?, 0) do
         unquote(callbacks)
 
         options =
@@ -98,8 +98,6 @@ defmodule Opus.Pipeline do
           )
 
         @opus_stages {:link, unquote(name), Map.new(options ++ [stage_id: unquote(stage_id)])}
-      else
-        # IO.warn "Expected #{inspect mod} to be an Opus.Pipeline module. Did you forget to add: `use Opus.Pipeline`?"
       end
     end
   end

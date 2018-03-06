@@ -62,7 +62,11 @@ defmodule Opus.Pipeline.Stage.LinkTest do
     end
 
     test "does not raise" do
-      Subject.call(1)
+      RecursivePipeline.call(1)
+    end
+
+    test "returns the expected result" do
+      assert {:ok, 16} = RecursivePipeline.call(1)
     end
   end
 end
