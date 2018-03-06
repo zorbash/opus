@@ -10,4 +10,4 @@ matrix:
       elixir: 1.6.0
 
 script:
-  - "MIX_ENV=test mix do deps.get, test"
+  - "MIX_ENV=test mix do deps.get, credo, test
