@@ -1,4 +1,35 @@
 defmodule Opus.Pipeline do
+  @moduledoc ~S"""
+  Defines a pipeline.
+
+  A pipeline defines a single entry point function to start running the defined stages.
+  A sample pipeline can be:
+
+      defmodule ArithmeticPipeline do
+        use Opus.Pipeline
+
+        step :to_integer, &:erlang.binary_to_integer/1
+        step :double, with: & &1 * 2
+      end
+
+  The pipeline can be run calling a `call/1` function which is defined by using Opus.Pipeline.
+  Pipelines are intended to have a single parameter and always return a tagged tuple `{:ok, value} | {:error, error}`.
+  A stage returning `{:error, error}` halts the pipeline. The error value is an `Opus.PipelineError` struct which
+  contains useful information to detect where was the error caused and why.
+
+  ## Exception Handling
+
+  All exceptions are converted to `{:error, exception}` tuples by default.
+  The
+  You may let a stage raise an exception by providing the `:raise` option to a stage as follows:
+
+      defmodule ArithmeticPipeline do
+        use Opus.Pipeline
+
+        step :to_integer, &:erlang.binary_to_integer/1, raise: [ArgumentError]
+      end
+  """
+
   defmacro __using__(_opts) do
     quote location: :keep do
       import Opus.Pipeline

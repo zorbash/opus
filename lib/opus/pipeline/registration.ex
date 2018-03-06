@@ -1,4 +1,6 @@
 defmodule Opus.Pipeline.Registration do
+  @moduledoc false
+
   def define_callback(_type, _stage_id, _name, nil) do
     quote do: :ok
   end

@@ -1,4 +1,6 @@
 defmodule Opus.Instrumentation do
+  @moduledoc false
+
   defmacro instrument(event, fun) do
     handling = __MODULE__.definstrument(fun)
 

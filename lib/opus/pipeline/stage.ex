@@ -3,11 +3,10 @@ defmodule Opus.Pipeline.Stage do
   Specification of the stage behavior
   """
 
-  # TODO: define type for opts
-
   @callback run(
               {
                 module :: atom(),
+                type :: atom(),
                 name :: atom(),
                 opts :: %{}
               },

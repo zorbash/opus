@@ -1,4 +1,11 @@
 defmodule Opus.Pipeline.Stage.Check do
+  @moduledoc ~S"""
+  The check stage is intended to assert its input fulfils certain criteria
+  otherwise the pipeline is halted.
+
+  Its implementation must return `true` to proceed running any next steps.
+  """
+
   alias Opus.PipelineError
   alias Opus.Pipeline.Stage
 

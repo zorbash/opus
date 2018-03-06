@@ -1,4 +1,6 @@
 defmodule Opus.Safe do
+  @moduledoc false
+
   import Kernel, except: [apply: 2]
 
   def apply(mfa), do: apply(mfa, %{})
