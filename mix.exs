@@ -20,7 +20,10 @@ defmodule Opus.Mixfile do
   end
 
   defp deps do
-    [{:ex_doc, "~> 0.18", only: :dev}]
+    [
+      {:ex_doc, "~> 0.18", only: :dev},
+      {:credo, "~> 0.8.10", runtime: false}
+    ]
   end
 
   defp description, do: "Framework for creating pluggable business logic components"
