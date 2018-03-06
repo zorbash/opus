@@ -11,7 +11,14 @@ defmodule Opus.Mixfile do
       package: package(),
       description: description(),
       name: "Opus",
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        "coveralls": :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -21,8 +28,9 @@ defmodule Opus.Mixfile do
 
   defp deps do
     [
+      {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.18", only: :dev},
-      {:credo, "~> 0.8.10", runtime: false}
+      {:excoveralls, "~> 0.8", only: :test}
     ]
   end
 

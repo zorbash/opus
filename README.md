@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/Zorbash/opus.svg?branch=master)](https://travis-ci.org/Zorbash/opus)
 [![Package Version](https://img.shields.io/hexpm/v/opus.svg)](https://hex.pm/packages/opus)
+[![Coverage Status](https://coveralls.io/repos/github/Zorbash/opus/badge.svg?branch=master)](https://coveralls.io/github/Zorbash/opus?branch=master)
 
 A framework for pluggable business logic components.
 
