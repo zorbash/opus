@@ -189,6 +189,16 @@ defmodule Opus.InstrumentationTest do
       assert_received {_, MockInstrumentation, :stage_completed, %{stage: %{name: :add_two}}, _}
       assert_received {_, MockInstrumentation, :stage_completed, %{stage: %{name: :add_three}}, _}
     end
+
+    test "when an invalid instrumentation module is provided in application config, it does not raise" do
+      Application.put_env(:opus, :instrumentation, "not a module")
+      Subject.call(0)
+    end
+
+    test "when a list of invalid instrumentation modules in the application config, it does not raise" do
+      Application.put_env(:opus, :instrumentation, ["not a module", "also not a module"])
+      Subject.call(0)
+    end
   end
 
   describe "intrumentation - :stage_skipped" do

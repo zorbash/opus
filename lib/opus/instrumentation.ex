@@ -68,7 +68,7 @@ defmodule Opus.Instrumentation do
   end
 
   defp do_run_instrumenters(instrumenters, event, {module, _type, name, _opts}, metrics) do
-    for instrumenter <- instrumenters, function_exported?(instrumenter, :instrument, 3) do
+    for instrumenter <- instrumenters, is_atom(instrumenter), function_exported?(instrumenter, :instrument, 3) do
       instrumenter.instrument(event, %{stage: %{pipeline: module, name: name}}, metrics)
     end
   end
