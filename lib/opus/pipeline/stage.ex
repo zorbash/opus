@@ -24,10 +24,10 @@ defmodule Opus.Pipeline.Stage do
       when is_atom(fun),
       do: maybe_run({module, type, name, %{opts | if: {module, fun, [input]}}}, input)
 
-  def maybe_run({module, _type, name, %{if: {_m, _f, _a} = condition}} = stage, input) do
+  def maybe_run({module, _type, name, %{if: {_m, _f, _a} = condition} = opts} = stage, input) do
     case Safe.apply(condition) do
       true ->
-        do_run(stage, input)
+        with_retries({module, opts}, fn -> do_run(stage, input) end)
 
       _ ->
         module.instrument(:stage_skipped, %{stage: %{pipeline: module, name: name}}, %{
@@ -40,7 +40,69 @@ defmodule Opus.Pipeline.Stage do
     end
   end
 
-  def maybe_run({_module, _type, _name, %{}} = stage, input), do: do_run(stage, input)
+  def maybe_run({module, _type, _name, opts} = stage, input),
+    do: with_retries({module, opts}, fn -> do_run(stage, input) end)
+
+  def with_retries({module, %{retry_times: times, stage_id: id, retry_backoff: :anonymous}}, fun) do
+    callback =
+      (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :retry_backoff end)).name
+
+    with_retries(
+      {module, %{retry_times: times, stage_id: id, retry_backoff: {module, callback, []}}},
+      fun
+    )
+  end
+
+  def with_retries({module, %{retry_times: times, stage_id: id, retry_backoff: backoff}}, fun)
+      when is_atom(backoff) do
+    with_retries(
+      {module, %{retry_times: times, stage_id: id, retry_backoff: {module, backoff, []}}},
+      fun
+    )
+  end
+
+  def with_retries({module, %{retry_times: times, stage_id: id, retry_backoff: {m, f, a}}}, fun) do
+    case Safe.apply(fn -> Enum.take(apply(m, f, a), times) end) do
+      [_ | _] = delays ->
+        with_retries({module, %{retry_times: times, stage_id: id, delays: delays}}, fun)
+
+      _ ->
+        with_retries({module, %{retry_times: times, stage_id: id}}, fun)
+    end
+  end
+
+  def with_retries({module, %{retry_times: _times, stage_id: _id} = opts}, fun) do
+    result = fun.()
+
+    case result |> handle_run({:_, :_, :_}) do
+      {:halt, _} -> with_retries({module, opts}, fun, %{failures: 1})
+      _ -> result
+    end
+  end
+
+  def with_retries({_module, _opts}, fun), do: fun.()
+
+  def with_retries({module, %{retry_times: times} = stage}, fun, %{failures: failures}) do
+    delays =
+      case stage[:delays] do
+        [delay | delays] ->
+          :timer.sleep(delay)
+          delays
+
+        other ->
+          other
+      end
+
+    result = fun.()
+
+    case {failures < times, result |> handle_run({:_, :_, :_})} do
+      {true, {:halt, _}} ->
+        with_retries({module, put_in(stage[:delays], delays)}, fun, %{failures: failures + 1})
+
+      {_, _} ->
+        result
+    end
+  end
 
   def handle_run(:error, {module, name, input}),
     do:
