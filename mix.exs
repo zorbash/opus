@@ -38,7 +38,7 @@ defmodule Opus.Mixfile do
 
   defp package do
     [
-      files: ["lib", "mix.exs"],
+      files: ["README.md", "lib", "mix.exs"],
       maintainers: ["Dimitris Zorbas"],
       licenses: ["MIT"],
       links: %{github: "https://github.com/zorbash/opus"}
