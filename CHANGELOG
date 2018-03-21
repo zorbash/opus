@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.1.1] - 2018-03-21
+
+### Fixed
+
+* Bug where recursive pipeline linking would fail (see: 07a44488f8f)
+
 ## [0.1.0] - 2018-03-05
 
 ### Added
