@@ -1,9 +1,9 @@
 defmodule Opus.Safe do
   @moduledoc false
 
-  import Kernel, except: [apply: 2]
+  import Kernel, except: [apply: 2, apply: 3]
 
-  def apply(mfa), do: apply(mfa, %{})
+  def apply(term), do: apply(term, %{})
 
   def apply({m, f, a}, opts) do
     Kernel.apply(m, f, a)
@@ -11,7 +11,15 @@ defmodule Opus.Safe do
     e -> handle_exception(e, opts)
   end
 
-  def apply(fun, arg, opts \\ %{}) when is_function(fun) do
+  def apply(fun, opts) when is_function(fun, 0) do
+    fun.()
+  rescue
+    e -> handle_exception(e, opts)
+  end
+
+  def apply(fun, arg) when is_function(fun, 1), do: apply(fun, arg, %{})
+
+  def apply(fun, arg, opts \\ %{}) when is_function(fun, 1) do
     fun.(arg)
   rescue
     e -> handle_exception(e, opts)

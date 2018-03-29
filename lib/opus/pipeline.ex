@@ -34,6 +34,8 @@ defmodule Opus.Pipeline do
     quote location: :keep do
       import Opus.Pipeline
       import Opus.Pipeline.Registration
+      import Retry.DelayStreams
+
       Module.register_attribute(__MODULE__, :opus_stages, accumulate: true)
       Module.register_attribute(__MODULE__, :opus_callbacks, accumulate: true)
       @before_compile Opus.Pipeline

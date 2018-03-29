@@ -221,4 +221,26 @@ defmodule Opus.InstrumentationTest do
       assert is_number(input)
     end
   end
+
+  describe "instrument/2" do
+    defmodule SimpleInstrumentedPipeline do
+      use Opus.Pipeline
+
+      step :add_one, with: &(&1 + 1)
+      step :add_two, with: &(&1 + 2)
+
+      instrument :before_stage, fn %{stage: _stage} = metrics ->
+        send :instrumentation_test, {:erlang.unique_integer([:positive]), :before_stage, metrics}
+      end
+    end
+
+    alias SimpleInstrumentedPipeline, as: Subject
+
+    test "is delegated to instrument/3 matching every stage" do
+      Subject.call(1)
+
+      assert_received {_, :before_stage, %{input: 1, stage: :add_one}}
+      assert_received {_, :before_stage, %{input: 2, stage: :add_two}}
+    end
+  end
 end
