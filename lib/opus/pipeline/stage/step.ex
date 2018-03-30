@@ -9,7 +9,7 @@ defmodule Opus.Pipeline.Stage.Step do
 
   @behaviour Stage
 
-  def run({module, _, name, _opts} = stage, input) do
-    stage |> Stage.maybe_run(input) |> Stage.handle_run({module, name, input})
+  def run(stage, input) do
+    stage |> Stage.maybe_run(input) |> Stage.handle_run(%{stage: stage, input: input})
   end
 end

@@ -74,7 +74,7 @@ defmodule Opus.Pipeline.Stage do
   def with_retries({module, %{retry_times: _times, stage_id: _id} = opts}, fun) do
     result = fun.()
 
-    case result |> handle_run({:_, :_, :_}) do
+    case result |> handle_run(%{stage: {:_, :_, :_, :_}, input: :_}) do
       {:halt, _} -> with_retries({module, opts}, fun, %{failures: 1})
       _ -> result
     end
@@ -95,7 +95,7 @@ defmodule Opus.Pipeline.Stage do
 
     result = fun.()
 
-    case {failures < times, result |> handle_run({:_, :_, :_})} do
+    case {failures < times, result |> handle_run(%{stage: {:_, :_, :_, :_}, input: :_})} do
       {true, {:halt, _}} ->
         with_retries({module, put_in(stage[:delays], delays)}, fun, %{failures: failures + 1})
 
@@ -104,17 +104,26 @@ defmodule Opus.Pipeline.Stage do
     end
   end
 
-  def handle_run(:error, {module, name, input}),
+  def handle_run(:error, %{stage: {module, _type, name, %{error_message: message}}, input: input}),
     do:
       {:halt,
        {:error,
-        %PipelineError{error: "Pipeline failed", pipeline: module, stage: name, input: input}}}
+        %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
 
-  def handle_run({:error, e}, {module, name, input}),
+  def handle_run(:error, %{stage: {module, _type, name, _opts}, input: input}),
+    do:
+      {:halt,
+       {:error,
+        %PipelineError{error: "stage failed", pipeline: module, stage: name, input: input}}}
+
+  def handle_run({:error, _}, %{stage: {module, _type, name, %{error_message: message}}, input: input}),
+    do: {:halt, {:error, %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
+
+  def handle_run({:error, e}, %{stage: {module, _type, name, _opts}, input: input}),
     do: {:halt, {:error, %PipelineError{error: e, pipeline: module, stage: name, input: input}}}
 
-  def handle_run(:stage_skipped, {_module, _name, input}), do: {:cont, input}
-  def handle_run(res, {_module, _name, _input}), do: {:cont, res}
+  def handle_run(:stage_skipped, %{stage: _stage, input: input}), do: {:cont, input}
+  def handle_run(res, %{stage: _stage, input: _input}), do: {:cont, res}
 
   defp do_run({module, type, name, %{with: :anonymous, stage_id: id} = opts}, input) do
     callback = (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :with end)).name
