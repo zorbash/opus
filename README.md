@@ -86,6 +86,8 @@ options:
   module, an anonymous function or a function reference. It must return
   an `Enumerable.t` yielding at least as many numbers as the
   `retry_times`.
+* `:instrument?`: A boolean which defaults to `true`. Set to `false` to
+  skip instrumentation for a stage.
 
 ### Retries
 
@@ -109,13 +111,13 @@ All the functions from [:retry][hex-retry] will be available to be used in `retr
 
 ## Instrumentation
 
-Instrumentation hooks can be defined
+Instrumentation hooks which can be defined:
 
 * `:before_stage`: Called before each stage
-* `:stage_skipped`: Called a conditional stage was skipped
+* `:stage_skipped`: Called when a conditional stage was skipped
 * `:stage_completed`: Called after each stage
 
-You can disable all instrumentation callbacks for a stage using `instrument: false`.
+You can disable all instrumentation callbacks for a stage using `instrument?: false`.
 
 ```elixir
 defmodule ArithmeticPipeline do
