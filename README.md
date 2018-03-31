@@ -14,20 +14,20 @@ The package can be installed by adding `opus` to your list of dependencies in `m
 
 ```elixir
 def deps do
-  [{:opus, "~> 0.1"}]
+  [{:opus, "~> 0.2"}]
 end
 ```
 
-## Features
+## Conventions
 
 * Each Opus pipeline module has a single entry point and returns tagged tuples
     `{:ok, value} | {:error, error}`
 * A pipeline is a composition of stateless stages
 * A stage returning `{:error, _}` halts the pipeline
 * A stage may be skipped based on a condition function (`:if` option)
-* Exceptions are converted to {:error, error} tuples by default
+* Exceptions are converted to `{:error, error}` tuples by default
 * An exception may be left to raise using the `:raise` option
-* Each stage of the timeline is instrumented. Metrics are captured
+* Each stage of the pipeline is instrumented. Metrics are captured
   automatically (but can be disabled).
 * Errors are meaningful and predictable
 
@@ -38,7 +38,7 @@ defmodule ArithmeticPipeline do
   use Opus.Pipeline
 
   step  :add_one,         with: &(&1 + 1)
-  check :even?,           with: &(rem(&1, 2) == 0)
+  check :even?,           with: &(rem(&1, 2) == 0), error_message: :expected_an_even
   tee   :publish_number,  if: &Publisher.publishable?/1, raise: [ExternalError]
   step  :double,          if: :lucky_number?
   step  :randomize,       with: &(&1 * :rand.uniform)
@@ -79,6 +79,8 @@ options:
 * `:raise`: A list of exceptions to not rescue. Defaults to `false`
   which converts all exceptions to `{:error, %Opus.PipelineError{}}`
   values halting the pipeline.
+* `:error_message`: A String or Atom to replace the original error when
+  a stage fails.
 * `:retry_times`: How many times to retry a failing stage, before
   halting the pipeline.
 * `:retry_backoff`: A backoff function to provide delay values for
@@ -107,7 +109,7 @@ The above module, will retry be retried up to 8 times, each time
 applying a delay from the next value of the retry_backoff function, which returns a
 Stream.
 
-All the functions from [:retry][hex-retry] will be available to be used in `retry_backoff`.
+All the functions from the [:retry][hex-retry] package will be available to be used in `retry_backoff`.
 
 ## Instrumentation
 

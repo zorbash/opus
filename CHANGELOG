@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.2.0] - 2018-03-31
+
+### Added
+
+* `retry_times` and `retry_backoff` options
+* `error_message` option
+
 ## [0.1.1] - 2018-03-21
 
 ### Fixed
