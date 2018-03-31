@@ -248,6 +248,29 @@ defmodule Opus.Pipeline.StageTest do
     end
   end
 
+  describe ":error_message option, with a message" do
+    defmodule ErrorMessagePipeline do
+      use Opus.Pipeline
+
+      step :double, error_message: :failed_to_double
+      step :maybe_fail
+
+      def double(n) when is_number(n), do: n * 2
+      def maybe_fail(10), do: raise "this will fail"
+      def maybe_fail(n), do: n
+    end
+
+    alias ErrorMessagePipeline, as: Subject
+
+    test "when the stage fails, the original error message is replaced with the :error_message option" do
+      assert {:error, %Opus.PipelineError{error: :failed_to_double}} = Subject.call(:not_a_number)
+    end
+
+    test "when the stage fails and no :error_message option is set, returns the original error" do
+      assert {:error, %Opus.PipelineError{error: %RuntimeError{message: "this will fail"}}} = Subject.call(5)
+    end
+  end
+
   def time_diff(t2, t1) do
     :timer.now_diff(t2, t1) / 1000
   end
