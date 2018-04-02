@@ -111,6 +111,19 @@ Stream.
 
 All the functions from the [:retry][hex-retry] package will be available to be used in `retry_backoff`.
 
+## Stage Filtering
+
+You can select the stages of a pipeline to run using `call/2` with the `:except` and `:only` options.
+Example:
+
+```elixir
+# Runs only the stage with the :validate_params name
+CreateUserPipeline.call(params, only: [:validate_params]
+
+# Runs all the stages except the selected ones
+CreateUserPipeline.call(params, except: :send_notification)
+```
+
 ## Instrumentation
 
 Instrumentation hooks which can be defined:

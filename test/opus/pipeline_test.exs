@@ -122,4 +122,24 @@ defmodule Opus.PipelineTest do
       assert {:ok, :anything} = NoStagesPipeline.call(:anything)
     end
   end
+
+  describe "call/2 - filtering" do
+    defmodule FilteredPipeline do
+      use Opus.Pipeline
+
+      step :one, with: &[1 | &1]
+      step :two, with: &[2 | &1]
+      step :three, with: &[3 | &1]
+    end
+
+    alias FilteredPipeline, as: Subject
+
+    test "with the :only option, runs only the provided stages" do
+      assert {:ok, [2, 0]} = Subject.call([0], only: [:two])
+    end
+
+    test "with the :except option, does not run only the provided stages" do
+      assert {:ok, [3, 1, 0]} = Subject.call([0], except: [:two])
+    end
+  end
 end

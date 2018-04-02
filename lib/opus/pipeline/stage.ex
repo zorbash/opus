@@ -107,8 +107,7 @@ defmodule Opus.Pipeline.Stage do
   def handle_run(:error, %{stage: {module, _type, name, %{error_message: message}}, input: input}),
     do:
       {:halt,
-       {:error,
-        %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
+       {:error, %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
 
   def handle_run(:error, %{stage: {module, _type, name, _opts}, input: input}),
     do:
@@ -116,8 +115,13 @@ defmodule Opus.Pipeline.Stage do
        {:error,
         %PipelineError{error: "stage failed", pipeline: module, stage: name, input: input}}}
 
-  def handle_run({:error, _}, %{stage: {module, _type, name, %{error_message: message}}, input: input}),
-    do: {:halt, {:error, %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
+  def handle_run({:error, _}, %{
+        stage: {module, _type, name, %{error_message: message}},
+        input: input
+      }),
+      do:
+        {:halt,
+         {:error, %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
 
   def handle_run({:error, e}, %{stage: {module, _type, name, _opts}, input: input}),
     do: {:halt, {:error, %PipelineError{error: e, pipeline: module, stage: name, input: input}}}

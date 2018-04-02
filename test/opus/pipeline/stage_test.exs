@@ -256,7 +256,7 @@ defmodule Opus.Pipeline.StageTest do
       step :maybe_fail
 
       def double(n) when is_number(n), do: n * 2
-      def maybe_fail(10), do: raise "this will fail"
+      def maybe_fail(10), do: raise("this will fail")
       def maybe_fail(n), do: n
     end
 
@@ -267,7 +267,8 @@ defmodule Opus.Pipeline.StageTest do
     end
 
     test "when the stage fails and no :error_message option is set, returns the original error" do
-      assert {:error, %Opus.PipelineError{error: %RuntimeError{message: "this will fail"}}} = Subject.call(5)
+      assert {:error, %Opus.PipelineError{error: %RuntimeError{message: "this will fail"}}} =
+               Subject.call(5)
     end
   end
 

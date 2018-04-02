@@ -20,7 +20,6 @@ defmodule Opus.Pipeline do
   ## Exception Handling
 
   All exceptions are converted to `{:error, exception}` tuples by default.
-  The
   You may let a stage raise an exception by providing the `:raise` option to a stage as follows:
 
       defmodule ArithmeticPipeline do
@@ -28,6 +27,18 @@ defmodule Opus.Pipeline do
 
         step :to_integer, &:erlang.binary_to_integer/1, raise: [ArgumentError]
       end
+
+  ## Stage Filtering
+
+  You can select the stages of a pipeline to run using `call/2` with the `:except` and `:only` options.
+  Example:
+
+  ```
+  # Runs only the stage with the :validate_params name
+  CreateUserPipeline.call(params, only: [:validate_params]
+  # Runs all the stages except the selected ones
+  CreateUserPipeline.call(params, except: :send_notification)
+  ```
   """
 
   defmacro __using__(_opts) do
@@ -42,6 +53,7 @@ defmodule Opus.Pipeline do
 
       alias Opus.PipelineError
       alias Opus.Instrumentation
+      alias Opus.Pipeline.StageFilter
       alias Opus.Pipeline.Stage.{Step, Tee, Check, Link}
       alias __MODULE__, as: Pipeline
 
@@ -49,8 +61,10 @@ defmodule Opus.Pipeline do
 
       def pipeline?, do: true
 
-      def call(input) do
-        case Pipeline.stages() |> Enum.reduce_while(input, &run_instrumented/2) do
+      def call(input, opts \\ %{}) do
+        case Pipeline.stages()
+             |> StageFilter.call(opts)
+             |> Enum.reduce_while(input, &run_instrumented/2) do
           {:error, _} = error -> error
           val -> {:ok, val}
         end
