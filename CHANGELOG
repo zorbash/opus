@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.3.0] - 2018-04-02
+
+### Added
+
+* `call/2` to pipeline modules with `:except` and `:only` options
+
 ## [0.2.0] - 2018-03-31
 
 ### Added
