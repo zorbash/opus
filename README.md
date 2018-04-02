@@ -63,6 +63,50 @@ sequence.
 
 ## Stages
 
+There are a few different types of stages for different use-cases.
+All stage functions, expect a single argument which is provided either
+from initial `call/1` of the pipeline module or the return value of the
+previous stage.
+
+An error value is either `:error` or `{:error, any}` and anything else
+is considered a success value.
+
+### Step
+
+This stage processes the input value and with a success value the next
+stage is called with that value. With an error value the pipeline is
+halted and an `{:error, any}` is returned.
+
+### Check
+
+This stage is intended for validations.
+
+This stage calls the stage function and unless it returns `true` it
+halts the pipeline.
+
+Example:
+
+```elixir
+defmodule CreateUserPipeline do
+  use Opus.Pipeline
+
+  check :valid_params?, with: &match? %{email: email} when is_bitstring(email), &1
+  # other stages to actually create the user
+end
+```
+
+### Tee
+
+This stage is intended for side effects, such as a notification or a
+call to an external system where the return value is not meaningful.
+It never halts the pipeline.
+
+### Link
+
+This stage is to link with another Opus.Pipeline module. It calls
+`call/1` for the provided module. If the module is not an
+`Opus.Pipeline` it is ignored.
+
 ### Available options
 
 The behaviour of each stage can be configured with any of the available
@@ -114,6 +158,7 @@ All the functions from the [:retry][hex-retry] package will be available to be u
 ## Stage Filtering
 
 You can select the stages of a pipeline to run using `call/2` with the `:except` and `:only` options.
+
 Example:
 
 ```elixir
