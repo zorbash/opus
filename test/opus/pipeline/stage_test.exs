@@ -252,6 +252,11 @@ defmodule Opus.Pipeline.StageTest do
     defmodule ErrorMessagePipeline do
       use Opus.Pipeline
 
+      check :fail,
+        if: &match?(:check_input, &1),
+        with: fn _ -> false end,
+        error_message: :failed_check
+
       step :double, error_message: :failed_to_double
       step :maybe_fail
 
@@ -269,6 +274,10 @@ defmodule Opus.Pipeline.StageTest do
     test "when the stage fails and no :error_message option is set, returns the original error" do
       assert {:error, %Opus.PipelineError{error: %RuntimeError{message: "this will fail"}}} =
                Subject.call(5)
+    end
+
+    test "when a check fails returns the :error_message option" do
+      assert {:error, %Opus.PipelineError{error: :failed_check}} = Subject.call(:check_input)
     end
   end
 

@@ -33,6 +33,10 @@ defmodule Opus.Pipeline.Stage.CheckTest do
       {:ok, %{subject: SingleCheckFalsePipeline}}
     end
 
+    test "with false, returns an error tuple with an error message", %{subject: subject} do
+      assert {:error, %Opus.PipelineError{error: :failed_check_not_true}} = subject.call(false)
+    end
+
     test "with false, returns an error tuple", %{subject: subject} do
       assert {:error, %Opus.PipelineError{stage: :not_true}} = subject.call(false)
     end
