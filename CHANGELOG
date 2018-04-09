@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.3.1] - 2018-04-10
+
+### Fixed
+
+* The :error_message option is respected in check stages and the default error message is an
+Atom, constructed :"failed_check_#{stage_name}".
+
 ## [0.3.0] - 2018-04-02
 
 ### Added

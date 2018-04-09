@@ -18,7 +18,6 @@ defmodule Opus.Pipeline.Stage.Check do
   `{:error, %Opus.PipelineError{error: :failed_check_valid_params?}}`
   """
 
-  alias Opus.PipelineError
   alias Opus.Pipeline.Stage
 
   @behaviour Stage
@@ -28,7 +27,7 @@ defmodule Opus.Pipeline.Stage.Check do
       ret when ret in [true, :stage_skipped] ->
         {:cont, input}
 
-      error ->
+      _error ->
         opts = update_in(opts[:error_message], &(&1 || :"failed_check_#{name}"))
         Stage.handle_run(:error, %{stage: {module, type, name, opts}, input: input})
     end
