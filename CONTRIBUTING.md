@@ -32,6 +32,7 @@ do so.
 * Make sure the test suite is passing and the code you wrote doesn't produce
   [credo][credo] offenses.
 * Make sure to format source code using `mix format`.
+* Make sure your changes do not introduce compilation warnings.
 * Do not to decrement the test coverage, unless absolutely necessary.
 * [Squash related commits together][squash-rebase] and rebase on upstream master.
 * Open a [pull request][using-pull-requests] that relates to *only* one subject
