@@ -59,6 +59,7 @@ defmodule Opus.Pipeline do
 
       import Opus.Instrumentation, only: :macros
 
+      @doc false
       def pipeline?, do: true
 
       def call(input, opts \\ %{}) do
@@ -91,6 +92,7 @@ defmodule Opus.Pipeline do
     default_instrumentation = Opus.Instrumentation.default_callback()
 
     quote do
+      @doc false
       def stages, do: @opus_stages |> Enum.reverse()
       @opus_grouped_callbacks @opus_callbacks |> Enum.group_by(& &1.stage_id)
       def _opus_callbacks, do: @opus_grouped_callbacks

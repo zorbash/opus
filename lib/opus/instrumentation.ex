@@ -30,6 +30,7 @@ defmodule Opus.Instrumentation do
 
   def default_callback do
     quote do
+      @doc false
       def instrument(_, _, _), do: :ok
     end
   end
