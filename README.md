@@ -231,9 +231,32 @@ defmodule CustomInstrumentation do
 end
 ```
 
+## Graph
+
+You may visualise your pipelines using `Opus.Graph`:
+
+```elixir
+Opus.Graph.generate(:your_app)
+# => {:ok, "Graph file has been written to your_app_opus_graph.png"}
+```
+
+`Opus.Graph` is in fact a pipeline and its visualisation is:
+
+![graph-png](https://i.imgur.com/41kHjZL.png)
+
+You can customise the visualisation:
+
+```elixir
+Opus.Graph.generate(:your_app, %{filetype: :svg})
+# => {:ok, "Graph file has been written to your_app_opus_graph.svg"}
+```
+
+Read the available visualisation options [here][hexdocs-graph].
+
 ## License
 
 Copyright (c) 2018 Dimitris Zorbas, MIT License.
 See [LICENSE.txt](https://github.com/zorbash/opus/blob/master/LICENSE.txt) for further details.
 
 [hex-retry]: https://github.com/safwank/ElixirRetry/blob/master/lib/retry/delay_streams.ex
+[hexdocs-graph]: https://hexdocs.pm/opus/Opus.Graph.html

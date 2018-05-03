@@ -4,6 +4,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.4.0] - 2018-05-03
+
+### Added
+
+* Opus.Graph.generate/1 to create visualisations of pipelines of an app. Read more [here](
+https://github.com/Zorbash/opus#graph).
+
+## Changes
+
+* pipeline?/0 stages/0 and instrument/3 of pipeline modules are now hidden from the docs
+
 ## [0.3.1] - 2018-04-10
 
 ### Fixed
