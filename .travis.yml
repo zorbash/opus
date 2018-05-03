@@ -1,5 +1,9 @@
 language: elixir
 
+before_install:
+ - sudo apt-get -qq update
+ - sudo apt-get install -y graphviz
+
 matrix:
   include:
     - otp_release: 19.2
