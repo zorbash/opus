@@ -14,7 +14,7 @@ The package can be installed by adding `opus` to your list of dependencies in `m
 
 ```elixir
 def deps do
-  [{:opus, "~> 0.3"}]
+  [{:opus, "~> 0.4"}]
 end
 ```
 
@@ -240,6 +240,21 @@ Opus.Graph.generate(:your_app)
 # => {:ok, "Graph file has been written to your_app_opus_graph.png"}
 ```
 
+This feature uses [graphviz][graphviz], so make sure to have it
+installed. To install it:
+
+```shell
+# MacOS
+
+brew install graphviz
+```
+
+```shell
+# Debian / Ubuntu
+
+apt-get install graphviz
+```
+
 `Opus.Graph` is in fact a pipeline and its visualisation is:
 
 ![graph-png](https://i.imgur.com/41kHjZL.png)
@@ -260,3 +275,4 @@ See [LICENSE.txt](https://github.com/zorbash/opus/blob/master/LICENSE.txt) for f
 
 [hex-retry]: https://github.com/safwank/ElixirRetry/blob/master/lib/retry/delay_streams.ex
 [hexdocs-graph]: https://hexdocs.pm/opus/Opus.Graph.html
+[graphviz]: https://www.graphviz.org/
