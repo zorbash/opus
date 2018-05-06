@@ -19,6 +19,11 @@ defmodule Opus.Mixfile do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
+      ],
+      docs: [
+        extras: ["README.md"],
+        main: "readme",
+        source_url: "https://github.com/Zorbash/opus"
       ]
     ]
   end
