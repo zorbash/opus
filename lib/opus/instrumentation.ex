@@ -44,16 +44,17 @@ defmodule Opus.Instrumentation do
     start = :erlang.monotonic_time()
     run_instrumenters(:before_stage, stage, %{stage: name, input: input})
 
-    ret = fun.()
+    {status, new_input} = ret = fun.()
+    time = :erlang.monotonic_time() - start
 
     run_instrumenters(:stage_completed, stage, %{
       stage: name,
       input: input,
       result: format_result(ret),
-      time: :erlang.monotonic_time() - start
+      time: time
     })
 
-    ret
+    {status, %{time: time, input: new_input}}
   end
 
   def run_instrumenters(event, {module, _type, _name, _opts} = stage, metrics) do
@@ -73,7 +74,13 @@ defmodule Opus.Instrumentation do
     for instrumenter <- instrumenters,
         is_atom(instrumenter),
         function_exported?(instrumenter, :instrument, 3) do
-      instrumenter.instrument(event, %{stage: %{pipeline: module, name: name}}, metrics)
+      case event do
+        e when e in [:pipeline_started, :pipeline_completed] ->
+          instrumenter.instrument(event, %{pipeline: module}, metrics)
+
+        e ->
+          instrumenter.instrument(e, %{stage: %{pipeline: module, name: name}}, metrics)
+      end
     end
   end
 

@@ -63,19 +63,45 @@ defmodule Opus.Pipeline do
       def pipeline?, do: true
 
       def call(input, opts \\ %{}) do
+        Instrumentation.run_instrumenters(:pipeline_started, {Pipeline, nil, nil, nil}, %{
+          input: input
+        })
+
         case Pipeline.stages()
              |> StageFilter.call(opts)
-             |> Enum.reduce_while(input, &run_instrumented/2) do
-          {:error, _} = error -> error
-          val -> {:ok, val}
+             |> Enum.reduce_while(%{time: 0, input: input}, &run_instrumented/2) do
+          %{time: time, input: {:error, _} = error} ->
+            Instrumentation.run_instrumenters(:pipeline_completed, {Pipeline, nil, nil, nil}, %{
+              result: error,
+              time: time
+            })
+
+            error
+
+          %{time: time, input: val} ->
+            Instrumentation.run_instrumenters(:pipeline_completed, {Pipeline, nil, nil, nil}, %{
+              result: {:ok, val},
+              time: time
+            })
+
+            {:ok, val}
         end
       end
 
-      defp run_instrumented({type, name, opts} = stage, input),
-        do:
+      defp run_instrumented({type, name, opts} = stage, %{time: acc_time, input: input}) do
+        instrumented_return =
           Instrumentation.run_instrumented({Pipeline, type, name, opts}, input, fn ->
             run_stage(stage, input)
           end)
+
+        case instrumented_return do
+          {status, %{time: time, input: new_input}} ->
+            {status, %{time: acc_time + time, input: new_input}}
+
+          {status, new_input} ->
+            {status, %{time: acc_time + 0, input: new_input}}
+        end
+      end
 
       defp run_stage({type, name, opts}, input),
         do: run_stage({Pipeline, type, name, opts}, input)

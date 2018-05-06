@@ -28,6 +28,16 @@ defmodule Opus.InstrumentationTest do
            {:erlang.unique_integer([:positive]), :stage_skipped, info, metrics}
     end
 
+    instrument :pipeline_started, info, fn args ->
+      send :instrumentation_test,
+           {:erlang.unique_integer([:positive]), :pipeline_started, info, args}
+    end
+
+    instrument :pipeline_completed, info, fn args ->
+      send :instrumentation_test,
+           {:erlang.unique_integer([:positive]), :pipeline_completed, info, args}
+    end
+
     def add_one(input) do
       send :instrumentation_test, {:erlang.unique_integer([:positive]), :stage, :add_one}
       input + 1
@@ -202,7 +212,7 @@ defmodule Opus.InstrumentationTest do
   end
 
   describe "intrumentation - :stage_skipped" do
-    test "is is called when the stage is skipped" do
+    test "it is called when the stage is skipped" do
       Subject.call(0)
 
       assert_received {_, :stage_skipped, %{stage: %{name: :add_three}}, _}
@@ -219,6 +229,58 @@ defmodule Opus.InstrumentationTest do
 
       assert_received {_, :stage_skipped, %{stage: %{name: :add_three}}, %{input: input}}
       assert is_number(input)
+    end
+  end
+
+  describe "intrumentation - :pipeline_started" do
+    test "it is called when the pipeline is started" do
+      Subject.call(0)
+
+      assert_received {_, :pipeline_started, %{pipeline: InstrumentedPipeline}, %{input: 0}}
+    end
+  end
+
+  describe "intrumentation - :pipeline_completed" do
+    test "it is called when the whole pipeline is completed" do
+      Subject.call(0)
+
+      assert_received {_, :pipeline_completed, %{pipeline: InstrumentedPipeline},
+                       %{result: {:ok, _}, time: _}}
+    end
+
+    test "when fully completed, the total time for the pipeline is equal to the sum of all its stages" do
+      Subject.call(0)
+
+      assert_received {_, :pipeline_completed, %{pipeline: InstrumentedPipeline},
+                       %{result: {:ok, _}, time: total_time}}
+
+      stage_time =
+      (for {_, :stage_completed, _, %{time: _}} = msg <- Process.info(self(), [:messages])[:messages], do: msg)
+      |> Enum.map(fn {_, :stage_completed, _, %{time: time}} -> time end)
+      |> Enum.sum
+
+      assert total_time == stage_time
+    end
+
+    test "when the pipeline is halted, the result is an error tuple" do
+      Subject.call("invalid input")
+
+      assert_received {_, :pipeline_completed, %{pipeline: InstrumentedPipeline},
+                       %{result: {:error, _}}}
+    end
+
+    test "when halted, the total time for the pipeline is equal to the sum of all its stages" do
+      Subject.call("invalid input")
+
+      assert_received {_, :pipeline_completed, %{pipeline: InstrumentedPipeline},
+                       %{result: {:error, _}, time: total_time}}
+
+      stage_time =
+      (for {_, :stage_completed, _, %{time: _}} = msg <- Process.info(self(), [:messages])[:messages], do: msg)
+      |> Enum.map(fn {_, :stage_completed, _, %{time: time}} -> time end)
+      |> Enum.sum
+
+      assert total_time == stage_time
     end
   end
 

@@ -221,12 +221,20 @@ An instrumentation module has to export `instrument/3` functions like:
 
 ```elixir
 defmodule CustomInstrumentation do
+  def instrument(:pipeline_started, %{pipeline: ArithmeticPipeline}, %{input: input}) do
+    # publish the metrics to specific backend
+  end
+
   def instrument(:stage_completed, %{stage: %{pipeline: ArithmeticPipeline}}, %{time: time}) do
     # publish the metrics to specific backend
   end
 
   def instrument(:stage_completed, _metadata, %{time: time}) do
     # publish the metrics to common backend
+  end
+
+  def instrument(:pipeline_completed, %{pipeline: ArithmeticPipeline}, %{input: input, time: total_time}) do
+    # publish the metrics to specific backend
   end
 end
 ```
