@@ -14,7 +14,7 @@ The package can be installed by adding `opus` to your list of dependencies in `m
 
 ```elixir
 def deps do
-  [{:opus, "~> 0.4"}]
+  [{:opus, "~> 0.5"}]
 end
 ```
 

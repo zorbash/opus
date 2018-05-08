@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.5.0] - 2018-05-08
+
+### Added
+
+* Module-Global options (see: https://github.com/Zorbash/opus#module-global-options)
+* Opus.PipelineError struct now includes a stacktrace (when it's a wrapped exception)
+* New instrumentation events, :pipeline_started and :pipeline_completed (holds total time for a pipeline)
+
 ## [0.4.0] - 2018-05-03
 
 ### Added
