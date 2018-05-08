@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.5.1] - 2018-05-08
+
+## Fixed
+
+* Raise CompileError when an unknown module is linked. Previous behaviour was that an
+unknown module would be silently ignored.
+
 ## [0.5.0] - 2018-05-08
 
 ### Added
