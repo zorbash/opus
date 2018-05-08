@@ -69,4 +69,18 @@ defmodule Opus.Pipeline.Stage.LinkTest do
       assert {:ok, 16} = RecursivePipeline.call(1)
     end
   end
+
+  describe "linking unknown module" do
+    test "raises CompileError" do
+      assert_raise CompileError,
+                   ~r/module NonExistent is not loaded and could not be found/,
+                   fn ->
+                     defmodule BadLinkPipeline do
+                       use Opus.Pipeline
+
+                       link NonExistent
+                     end
+                   end
+    end
+  end
 end

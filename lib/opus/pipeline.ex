@@ -148,6 +148,20 @@ defmodule Opus.Pipeline do
     callbacks = Opus.Pipeline.Registration.maybe_define_callbacks(stage_id, name, opts)
 
     quote do
+      if unquote(name) != __MODULE__ do
+        case Code.ensure_compiled(unquote(name)) do
+          {:error, _} ->
+            raise CompileError,
+              file: __ENV__.file,
+              line: __ENV__.line,
+              description:
+                to_string(:elixir_aliases.format_error({:unloaded_module, unquote(name)}))
+
+          _ ->
+            :ok
+        end
+      end
+
       if unquote(name) == __MODULE__ || :erlang.function_exported(unquote(name), :pipeline?, 0) do
         unquote(callbacks)
 
