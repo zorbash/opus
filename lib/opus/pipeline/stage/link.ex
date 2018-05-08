@@ -15,7 +15,7 @@ defmodule Opus.Pipeline.Stage.Link do
     case Step.run({module, type, name, Map.merge(opts, %{with: &name.call/1})}, input) do
       {:cont, {:ok, val}} -> {:cont, val}
       {:cont, val} -> {:cont, val}
-      {:halt, {:error, err}} -> {:halt, {:error, err.error}}
+      {:halt, {:error, err}} -> {:halt, {:error, err}}
     end
   end
 end

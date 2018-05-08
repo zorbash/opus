@@ -36,10 +36,10 @@ defmodule Opus.Safe do
       reraise e, stacktrace
     end
 
-    {:error, e}
+    error_with_stacktrace(e)
   end
 
-  defp handle_exception(e, %{}) do
-    {:error, e}
-  end
+  defp handle_exception(e, %{}), do: error_with_stacktrace(e)
+
+  defp error_with_stacktrace(e), do: {:error, %{error: e, stacktrace: System.stacktrace()}}
 end

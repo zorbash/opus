@@ -104,10 +104,9 @@ defmodule Opus.Pipeline.Stage do
     end
   end
 
-  def handle_run(:error, %{stage: {module, _type, name, %{error_message: message}}, input: input}),
-    do:
-      {:halt,
-       {:error, %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
+  def handle_run(:error, %{stage: {module, _type, name, %{error_message: message}}, input: input}) do
+    {:halt, {:error, %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
+  end
 
   def handle_run(:error, %{stage: {module, _type, name, _opts}, input: input}),
     do:
@@ -115,19 +114,33 @@ defmodule Opus.Pipeline.Stage do
        {:error,
         %PipelineError{error: "stage failed", pipeline: module, stage: name, input: input}}}
 
-  def handle_run({:error, _}, %{
+  def handle_run({:error, e}, %{
         stage: {module, _type, name, %{error_message: message}},
         input: input
       }),
       do:
         {:halt,
-         {:error, %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
+         {:error,
+          format_error(put_in(e[:error], message), %{pipeline: module, stage: name, input: input})}}
 
-  def handle_run({:error, e}, %{stage: {module, _type, name, _opts}, input: input}),
-    do: {:halt, {:error, %PipelineError{error: e, pipeline: module, stage: name, input: input}}}
+  def handle_run({:error, %Opus.PipelineError{} = e}, _) do
+    {:halt, {:error, e}}
+  end
+
+  def handle_run({:error, e}, %{stage: {module, _type, name, _opts}, input: input}) do
+    {:halt, {:error, format_error(e, %{pipeline: module, stage: name, input: input})}}
+  end
 
   def handle_run(:stage_skipped, %{stage: _stage, input: input}), do: {:cont, input}
   def handle_run(res, %{stage: _stage, input: _input}), do: {:cont, res}
+
+  defp format_error(%{error: e, stacktrace: trace}, %{pipeline: module, stage: name, input: input}) do
+    %PipelineError{error: e, pipeline: module, stage: name, input: input, stacktrace: trace}
+  end
+
+  defp format_error(error, %{pipeline: module, stage: name, input: input}) do
+    %PipelineError{error: error, pipeline: module, stage: name, input: input}
+  end
 
   defp do_run({module, type, name, %{with: :anonymous, stage_id: id} = opts}, input) do
     callback = (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :with end)).name
@@ -138,12 +151,12 @@ defmodule Opus.Pipeline.Stage do
        when is_atom(atom_with),
        do: do_run({module, type, name, %{opts | with: {module, atom_with, [input]}}}, input)
 
-  defp do_run({_module, _type, _name, %{with: with_fun} = opts}, input)
+  defp do_run({module, _type, _name, %{with: with_fun} = opts}, input)
        when is_function(with_fun),
-       do: Safe.apply(with_fun, input, Map.take(opts, [:raise]))
+       do: Safe.apply(with_fun, input, Map.merge(module._opus_opts, Map.take(opts, [:raise])))
 
-  defp do_run({_module, _type, _name, %{with: {_m, _f, _a} = with_mfa} = opts}, _input),
-    do: Safe.apply(with_mfa, Map.take(opts, [:raise]))
+  defp do_run({module, _type, _name, %{with: {_m, _f, _a} = with_mfa} = opts}, _input),
+    do: Safe.apply(with_mfa, Map.merge(module._opus_opts, Map.take(opts, [:raise])))
 
   defp do_run({module, type, name, %{} = opts}, input),
     do: do_run({module, type, name, Map.merge(opts, %{with: {module, name, [input]}})}, input)

@@ -28,7 +28,12 @@ defmodule Opus.SafeTest do
     end
 
     test "when the function raises, it returns an error tuple", %{subject: subject} do
-      assert {:error, %RuntimeError{message: "some error"}} = subject.(:will_raise)
+      assert {:error, %{error: %RuntimeError{message: "some error"}}} = subject.(:will_raise)
+    end
+
+    test "when the function raises, the error contains stacktrace", %{subject: subject} do
+      assert {:error, %{error: _, stacktrace: trace}} = subject.(:will_raise)
+      assert is_list(trace)
     end
 
     test "when the function does not raise, it returns the return value of the function", %{
@@ -53,7 +58,8 @@ defmodule Opus.SafeTest do
           raise: [ArgumentError, ArithmeticError]
         })
 
-      assert {:error, %RuntimeError{}} = ret
+      assert {:error, %{error: %RuntimeError{}, stacktrace: trace}} = ret
+      assert is_list(trace)
     end
 
     test "when it does not raise, it returns the original return value" do
@@ -72,7 +78,12 @@ defmodule Opus.SafeTest do
     end
 
     test "when the function raises, it returns an error tuple", %{subject: subject} do
-      assert {:error, %RuntimeError{message: "some error"}} = subject.(:will_raise)
+      assert {:error, %{error: %RuntimeError{message: "some error"}}} = subject.(:will_raise)
+    end
+
+    test "when the function raises, the error contains a stacktrace", %{subject: subject} do
+      assert {:error, %{error: _, stacktrace: trace}} = subject.(:will_raise)
+      assert is_list(trace)
     end
 
     test "when the function does not raise, it returns the return value of the function", %{
@@ -108,8 +119,17 @@ defmodule Opus.SafeTest do
     test "when the function raises with an exception not in the list, it returns an error tuple" do
       fun = fn _ -> raise ArithmeticError, "bad argument in arithmetic expression" end
 
-      assert {:error, %ArithmeticError{}} =
+      assert {:error, %{error: %ArithmeticError{}}} =
                Subject.apply(fun, :_, %{raise: [ArgumentError, RuntimeError]})
+    end
+
+    test "when the function raises with an exception not in the list, the error contains stacktrace" do
+      fun = fn _ -> raise ArithmeticError, "bad argument in arithmetic expression" end
+
+      assert {:error, %{error: _, stacktrace: trace}} =
+               Subject.apply(fun, :_, %{raise: [ArgumentError, RuntimeError]})
+
+      assert is_list(trace)
     end
 
     test "when the function does not raise, the return value of the function is returned", %{
