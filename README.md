@@ -183,7 +183,7 @@ You can disable all instrumentation callbacks for a stage using `instrument?: fa
 defmodule ArithmeticPipeline do
   use Opus.Pipeline
 
-  step :double, instrument: false
+  step :double, instrument?: false
 end
 ```
 
@@ -236,6 +236,22 @@ defmodule CustomInstrumentation do
   def instrument(:pipeline_completed, %{pipeline: ArithmeticPipeline}, %{input: input, time: total_time}) do
     # publish the metrics to specific backend
   end
+end
+```
+
+## Module-Global Options
+
+You may choose to provide some common options to all the stages of a pipeline.
+
+
+```elixir
+defmodule ArithmeticPipeline do
+  use Opus.Pipeline, instrument?: false, raise: true
+  # The pipeline opts will disable instrumentation for this module
+  # and make will not rescue exceptions from any of the stages
+
+  step :double, with: &(&1 * 2)
+  step :triple, with: &(&1 * 3)
 end
 ```
 

@@ -41,7 +41,7 @@ defmodule Opus.Pipeline do
   ```
   """
 
-  defmacro __using__(_opts) do
+  defmacro __using__(opts) do
     quote location: :keep do
       import Opus.Pipeline
       import Opus.Pipeline.Registration
@@ -50,6 +50,7 @@ defmodule Opus.Pipeline do
       Module.register_attribute(__MODULE__, :opus_stages, accumulate: true)
       Module.register_attribute(__MODULE__, :opus_callbacks, accumulate: true)
       @before_compile Opus.Pipeline
+      @opus_opts Map.new(unquote(opts))
 
       alias Opus.PipelineError
       alias Opus.Instrumentation
@@ -63,36 +64,52 @@ defmodule Opus.Pipeline do
       def pipeline?, do: true
 
       def call(input, opts \\ %{}) do
-        Instrumentation.run_instrumenters(:pipeline_started, {Pipeline, nil, nil, nil}, %{
-          input: input
-        })
+        instrument? = Pipeline._opus_opts()[:instrument?]
+
+        unless instrument? == false do
+          Instrumentation.run_instrumenters(:pipeline_started, {Pipeline, nil, nil, nil}, %{
+            input: input
+          })
+        end
 
         case Pipeline.stages()
              |> StageFilter.call(opts)
              |> Enum.reduce_while(%{time: 0, input: input}, &run_instrumented/2) do
           %{time: time, input: {:error, _} = error} ->
-            Instrumentation.run_instrumenters(:pipeline_completed, {Pipeline, nil, nil, nil}, %{
-              result: error,
-              time: time
-            })
+            unless instrument? == false do
+              Instrumentation.run_instrumenters(:pipeline_completed, {Pipeline, nil, nil, nil}, %{
+                result: error,
+                time: time
+              })
+            end
 
             error
 
           %{time: time, input: val} ->
-            Instrumentation.run_instrumenters(:pipeline_completed, {Pipeline, nil, nil, nil}, %{
-              result: {:ok, val},
-              time: time
-            })
+            unless instrument? == false do
+              Instrumentation.run_instrumenters(:pipeline_completed, {Pipeline, nil, nil, nil}, %{
+                result: {:ok, val},
+                time: time
+              })
+            end
 
             {:ok, val}
         end
       end
 
+      def _opus_opts, do: @opus_opts
+
       defp run_instrumented({type, name, opts} = stage, %{time: acc_time, input: input}) do
+        pipeline_opts = Pipeline._opus_opts()
+
         instrumented_return =
-          Instrumentation.run_instrumented({Pipeline, type, name, opts}, input, fn ->
-            run_stage(stage, input)
-          end)
+          Instrumentation.run_instrumented(
+            {Pipeline, type, name, Map.merge(pipeline_opts, opts)},
+            input,
+            fn ->
+              run_stage(stage, input)
+            end
+          )
 
         case instrumented_return do
           {status, %{time: time, input: new_input}} ->

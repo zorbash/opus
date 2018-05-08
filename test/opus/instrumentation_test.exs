@@ -255,9 +255,13 @@ defmodule Opus.InstrumentationTest do
                        %{result: {:ok, _}, time: total_time}}
 
       stage_time =
-      (for {_, :stage_completed, _, %{time: _}} = msg <- Process.info(self(), [:messages])[:messages], do: msg)
-      |> Enum.map(fn {_, :stage_completed, _, %{time: time}} -> time end)
-      |> Enum.sum
+        for(
+          {_, :stage_completed, _, %{time: _}} = msg <-
+            Process.info(self(), [:messages])[:messages],
+          do: msg
+        )
+        |> Enum.map(fn {_, :stage_completed, _, %{time: time}} -> time end)
+        |> Enum.sum()
 
       assert total_time == stage_time
     end
@@ -276,9 +280,13 @@ defmodule Opus.InstrumentationTest do
                        %{result: {:error, _}, time: total_time}}
 
       stage_time =
-      (for {_, :stage_completed, _, %{time: _}} = msg <- Process.info(self(), [:messages])[:messages], do: msg)
-      |> Enum.map(fn {_, :stage_completed, _, %{time: time}} -> time end)
-      |> Enum.sum
+        for(
+          {_, :stage_completed, _, %{time: _}} = msg <-
+            Process.info(self(), [:messages])[:messages],
+          do: msg
+        )
+        |> Enum.map(fn {_, :stage_completed, _, %{time: time}} -> time end)
+        |> Enum.sum()
 
       assert total_time == stage_time
     end
@@ -303,6 +311,74 @@ defmodule Opus.InstrumentationTest do
 
       assert_received {_, :before_stage, %{input: 1, stage: :add_one}}
       assert_received {_, :before_stage, %{input: 2, stage: :add_two}}
+    end
+  end
+
+  describe "with module opts" do
+    defmodule PipelineWithOpts do
+      use Opus.Pipeline, instrument?: false
+
+      step :double, with: &(&1 * 2)
+
+      instrument :before_stage, info, fn %{stage: _stage} = metrics ->
+        send :instrumentation_test,
+             {:erlang.unique_integer([:positive]), :before_stage, info, metrics}
+      end
+    end
+
+    defmodule PipelineWithOptsOverride do
+      use Opus.Pipeline, instrument?: false
+
+      step :double, with: &(&1 * 2), instrument?: true
+
+      instrument :before_stage, info, fn %{stage: _stage} = metrics ->
+        send :instrumentation_test,
+             {:erlang.unique_integer([:positive]), :before_stage, info, metrics}
+      end
+
+      instrument :stage_completed, info, fn %{time: _time} = metrics ->
+        send :instrumentation_test,
+             {:erlang.unique_integer([:positive]), :stage_completed, info, metrics}
+      end
+
+      instrument :stage_skipped, info, fn %{stage: _stage} = metrics ->
+        send :instrumentation_test,
+             {:erlang.unique_integer([:positive]), :stage_skipped, info, metrics}
+      end
+
+      instrument :pipeline_started, info, fn args ->
+        send :instrumentation_test,
+             {:erlang.unique_integer([:positive]), :pipeline_started, info, args}
+      end
+
+      instrument :pipeline_completed, info, fn args ->
+        send :instrumentation_test,
+             {:erlang.unique_integer([:positive]), :pipeline_completed, info, args}
+      end
+    end
+
+    test "when at module level :instrument? is false, it does not call instrumenters" do
+      PipelineWithOpts.call(1)
+
+      refute_received {_, :before_stage, _}
+    end
+
+    test """
+    when at module level :instrument? is false, but a stage overrides, it calls call instrumenters for that stage
+    """ do
+      PipelineWithOptsOverride.call(1)
+
+      refute_received {_, :pipeline_started, _}
+
+      assert_received {_, :before_stage,
+                       %{stage: %{name: :double, pipeline: PipelineWithOptsOverride}},
+                       %{input: _}}
+
+      assert_received {_, :stage_completed,
+                       %{stage: %{name: :double, pipeline: PipelineWithOptsOverride}},
+                       %{input: _}}
+
+      refute_received {_, :pipeline_completed, _}
     end
   end
 end

@@ -142,4 +142,24 @@ defmodule Opus.PipelineTest do
       assert {:ok, [3, 1, 0]} = Subject.call([0], except: [:two])
     end
   end
+
+  describe "module opts" do
+    defmodule PipelineWithOpts do
+      use Opus.Pipeline, %{raise: true}
+
+      step :double, with: &(&1 * 2)
+    end
+
+    alias PipelineWithOpts, as: Subject
+
+    test "it keeps the options" do
+      assert Subject._opus_opts() == %{raise: true}
+    end
+
+    test "with the raise option, it raises when set to true" do
+      assert_raise ArithmeticError, fn ->
+        Subject.call("a string")
+      end
+    end
+  end
 end
