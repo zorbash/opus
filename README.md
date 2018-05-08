@@ -18,6 +18,11 @@ def deps do
 end
 ```
 
+## Documentation
+
+* [hexdocs](https://hexdocs.pm/opus)
+* [wiki](https://github.com/Zorbash/opus/wiki)
+
 ## Conventions
 
 * Each Opus pipeline module has a single entry point and returns tagged tuples
