@@ -55,7 +55,7 @@ defmodule Opus.Pipeline do
       alias Opus.PipelineError
       alias Opus.Instrumentation
       alias Opus.Pipeline.StageFilter
-      alias Opus.Pipeline.Stage.{Step, Tee, Check, Link}
+      alias Opus.Pipeline.Stage.{Step, Tee, Check, Link, Skip}
       alias __MODULE__, as: Pipeline
 
       import Opus.Instrumentation, only: :macros
@@ -127,6 +127,7 @@ defmodule Opus.Pipeline do
       defp run_stage({module, :tee, name, opts} = stage, input), do: Tee.run(stage, input)
       defp run_stage({module, :check, name, opts} = stage, input), do: Check.run(stage, input)
       defp run_stage({module, :link, name, opts} = stage, input), do: Link.run(stage, input)
+      defp run_stage({module, :skip, name, opts} = stage, input), do: Skip.run(stage, input)
     end
   end
 
@@ -228,6 +229,24 @@ defmodule Opus.Pipeline do
         )
 
       @opus_stages {:check, unquote(name), Map.new(options ++ [stage_id: unquote(stage_id)])}
+    end
+  end
+
+  defmacro skip(name, opts \\ []) do
+    stage_id = :erlang.unique_integer([:positive])
+    callbacks = Opus.Pipeline.Registration.maybe_define_callbacks(stage_id, name, opts)
+
+    quote do
+      unquote(callbacks)
+
+      options =
+        Opus.Pipeline.Registration.normalize_opts(
+          unquote(opts),
+          unquote(stage_id),
+          @opus_callbacks
+        )
+
+      @opus_stages {:skip, unquote(name), Map.new(options ++ [stage_id: unquote(stage_id)])}
     end
   end
 end

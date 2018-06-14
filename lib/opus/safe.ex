@@ -5,6 +5,8 @@ defmodule Opus.Safe do
 
   def apply(term), do: apply(term, %{})
 
+  def apply({_m, nil, _a}, _), do: nil
+
   def apply({m, f, a}, opts) do
     Kernel.apply(m, f, a)
   rescue
