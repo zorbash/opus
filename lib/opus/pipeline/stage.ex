@@ -24,6 +24,22 @@ defmodule Opus.Pipeline.Stage do
       when is_atom(fun),
       do: maybe_run({module, type, name, %{opts | if: {module, fun, [input]}}}, input)
 
+  def maybe_run({module, :skip, name, %{if: {_m, _f, _a} = condition}}, input) do
+    case Safe.apply(condition) do
+      true ->
+        module.instrument(:pipeline_skipped, %{stage: %{pipeline: module, name: name}}, %{
+          stage: name,
+          input: input
+        })
+
+        # Stop the pipeline execution
+        :pipeline_skipped
+
+      _ ->
+        nil
+    end
+  end
+
   def maybe_run({module, _type, name, %{if: {_m, _f, _a} = condition} = opts} = stage, input) do
     case Safe.apply(condition) do
       true ->
