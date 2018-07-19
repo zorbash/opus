@@ -262,7 +262,7 @@ You may choose to provide some common options to all the stages of a pipeline.
 defmodule ArithmeticPipeline do
   use Opus.Pipeline, instrument?: false, raise: true
   # The pipeline opts will disable instrumentation for this module
-  # and make will not rescue exceptions from any of the stages
+  # and will not rescue exceptions from any of the stages
 
   step :double, with: &(&1 * 2)
   step :triple, with: &(&1 * 3)
