@@ -306,6 +306,11 @@ Opus.Graph.generate(:your_app, %{filetype: :svg})
 
 Read the available visualisation options [here][hexdocs-graph].
 
+## Influences
+
+* [dry.rb - transaction][dryrb-transaction]
+* [trailblazer - operation][trailblazer-operation]
+
 ## License
 
 Copyright (c) 2018 Dimitris Zorbas, MIT License.
@@ -314,3 +319,5 @@ See [LICENSE.txt](https://github.com/zorbash/opus/blob/master/LICENSE.txt) for f
 [hex-retry]: https://github.com/safwank/ElixirRetry/blob/master/lib/retry/delay_streams.ex
 [hexdocs-graph]: https://hexdocs.pm/opus/Opus.Graph.html
 [graphviz]: https://www.graphviz.org/
+[dryrb-transaction]: https://dry-rb.org/gems/dry-transaction/
+[trailblazer-operation]: http://trailblazer.to/gems/operation/2.0/
