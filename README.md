@@ -60,6 +60,8 @@ ArithmeticPipeline.call(41)
 # {:ok, %{number: 84.13436750126804}}
 ```
 
+Read this [blogpost][medium-blogpost] to get started.
+
 ## Pipeline
 
 The core aspect of this library is defining pipeline modules. As in the
@@ -321,3 +323,4 @@ See [LICENSE.txt](https://github.com/zorbash/opus/blob/master/LICENSE.txt) for f
 [graphviz]: https://www.graphviz.org/
 [dryrb-transaction]: https://dry-rb.org/gems/dry-transaction/
 [trailblazer-operation]: http://trailblazer.to/gems/operation/2.0/
+[medium-blogpost]: https://medium.com/quiqup-engineering/how-to-create-beautiful-pipelines-on-elixir-with-opus-f0b688de8994
