@@ -42,7 +42,6 @@ end
 defmodule ArithmeticPipeline do
   use Opus.Pipeline
 
-  skip                    if: :greater_than_fifty?
   step  :add_one,         with: &(&1 + 1)
   check :even?,           with: &(rem(&1, 2) == 0), error_message: :expected_an_even
   tee   :publish_number,  if: &Publisher.publishable?/1, raise: [ExternalError]
@@ -53,7 +52,6 @@ defmodule ArithmeticPipeline do
   def double(n), do: n * 2
   def lucky_number?(n) when n in 42..1337, do: true
   def lucky_number?(_), do: false
-  def greater_than_fifty?(n), do: n > 50
 end
 
 ArithmeticPipeline.call(41)
@@ -115,13 +113,6 @@ It never halts the pipeline.
 This stage is to link with another Opus.Pipeline module. It calls
 `call/1` for the provided module. If the module is not an
 `Opus.Pipeline` it is ignored.
-
-### Skip
-
-This stage expects a `:if` option only, on which is expected to return a
-boolean value. If `true`, then the pipeline halts and Opus returns
-`{:ok, :skipped}`. If `false` or any other value is returned (including non-boolean),
-then the next stage is called with no side effect.
 
 ### Available options
 
