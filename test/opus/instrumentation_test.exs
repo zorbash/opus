@@ -9,31 +9,33 @@ defmodule Opus.InstrumentationTest do
     step :add_three, with: &(&1 + 3), if: fn _ -> false end
     step :add_four, with: &(&1 + 4), instrument?: false
 
-    instrument :before_stage, info, fn
-      %{stage: _stage, input: -1} ->
-        raise "oh noes"
+    instrument :before_stage, info, %{stage: _stage} = metrics do
+      case metrics do
+        %{input: -1} ->
+          raise "oh noes"
 
-      %{stage: _stage} = metrics ->
-        send :instrumentation_test,
-             {:erlang.unique_integer([:positive]), :before_stage, info, metrics}
+        _ ->
+          send :instrumentation_test,
+               {:erlang.unique_integer([:positive]), :before_stage, info, metrics}
+      end
     end
 
-    instrument :stage_completed, info, fn %{time: _time} = metrics ->
+    instrument :stage_completed, info, %{time: _time} = metrics do
       send :instrumentation_test,
            {:erlang.unique_integer([:positive]), :stage_completed, info, metrics}
     end
 
-    instrument :stage_skipped, info, fn %{stage: _stage} = metrics ->
+    instrument :stage_skipped, info, %{stage: _stage} = metrics do
       send :instrumentation_test,
            {:erlang.unique_integer([:positive]), :stage_skipped, info, metrics}
     end
 
-    instrument :pipeline_started, info, fn args ->
+    instrument :pipeline_started, info, args do
       send :instrumentation_test,
            {:erlang.unique_integer([:positive]), :pipeline_started, info, args}
     end
 
-    instrument :pipeline_completed, info, fn args ->
+    instrument :pipeline_completed, info, args do
       send :instrumentation_test,
            {:erlang.unique_integer([:positive]), :pipeline_completed, info, args}
     end

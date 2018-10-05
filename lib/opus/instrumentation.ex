@@ -1,6 +1,14 @@
 defmodule Opus.Instrumentation do
   @moduledoc false
 
+  defmacro instrument(event, do: block) do
+    quote do
+      @doc false
+      def instrument(unquote(event), _, _), do: unquote(block)
+    end
+  end
+
+  # Deprecated Opus syntax, causes dialyzer failures
   defmacro instrument(event, fun) do
     handling = __MODULE__.definstrument(fun)
 
@@ -10,12 +18,27 @@ defmodule Opus.Instrumentation do
     end
   end
 
+  defmacro instrument(event, opts, do: block) do
+    quote do
+      @doc false
+      def instrument(unquote(event), unquote(opts), _), do: unquote(block)
+    end
+  end
+
+  # Deprecated Opus syntax, causes dialyzer failures
   defmacro instrument(event, opts, fun) do
     handling = __MODULE__.definstrument(fun)
 
     quote do
       @doc false
       def instrument(unquote(event), unquote(opts), metrics), do: unquote(handling)
+    end
+  end
+
+  defmacro instrument(event, opts, metrics, do: block) do
+    quote do
+      @doc false
+      def instrument(unquote(event), unquote(opts), unquote(metrics)), do: unquote(block)
     end
   end
 
