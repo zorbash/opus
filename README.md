@@ -203,12 +203,12 @@ defmodule ArithmeticPipeline do
   step :double, with: &(&1 * 2)
   step :triple, with: &(&1 * 3)
 
-  instrument :before_stage, fn %{input: input} ->
+  instrument :before_stage, %{input: input} do
     IO.inspect input
   end
 
   # Will be called only for the matching stage
-  instrument :stage_completed, %{stage: %{name: :triple}}, fn %{time: time} ->
+  instrument :stage_completed, %{stage: %{name: :triple}}, %{time: time} do
     # send to the monitoring tool of your choice
   end
 end
