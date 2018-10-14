@@ -23,7 +23,7 @@ defmodule Opus.Mixfile do
       docs: [
         extras: ["README.md"],
         main: "readme",
-        source_url: "https://github.com/Zorbash/opus"
+        source_url: "https://github.com/zorbash/opus"
       ]
     ]
   end

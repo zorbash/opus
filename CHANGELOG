@@ -15,7 +15,7 @@ unknown module would be silently ignored.
 
 ### Added
 
-* Module-Global options (see: https://github.com/Zorbash/opus#module-global-options)
+* Module-Global options (see: https://github.com/zorbash/opus#module-global-options)
 * Opus.PipelineError struct now includes a stacktrace (when it's a wrapped exception)
 * New instrumentation events, :pipeline_started and :pipeline_completed (holds total time for a pipeline)
 
@@ -24,7 +24,7 @@ unknown module would be silently ignored.
 ### Added
 
 * Opus.Graph.generate/1 to create visualisations of pipelines of an app. Read more [here](
-https://github.com/Zorbash/opus#graph).
+https://github.com/zorbash/opus#graph).
 
 ## Changes
 
