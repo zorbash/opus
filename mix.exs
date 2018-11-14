@@ -39,7 +39,6 @@ defmodule Opus.Mixfile do
   defp deps do
     [
       {:retry, "~> 0.8"},
-      {:graphvix, "~> 0.5"},
       {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.18", only: :dev},
       {:excoveralls, "~> 0.8", only: :test}

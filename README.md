@@ -271,6 +271,31 @@ Opus.Graph.generate(:your_app)
 # => {:ok, "Graph file has been written to your_app_opus_graph.png"}
 ```
 
+This needs the [`opus_graph`][opus_graph] package to be installed, add it in your
+mix.exs.
+
+```elixir
+defp deps do
+  {:opus_graph, "~> 0.1", only: [:dev]}
+end
+```
+
+### Setup
+
+First make sure to add `graphvix` to your dependencies:
+
+```elixir
+# in mix.exs
+
+defp deps do
+  [
+    {:opus, "~> 0.5"},
+    {:graphvix, "~> 0.5", only: [:dev]}
+  ]
+end
+
+```
+
 This feature uses [graphviz][graphviz], so make sure to have it
 installed. To install it:
 
@@ -315,3 +340,4 @@ See [LICENSE.txt](https://github.com/zorbash/opus/blob/master/LICENSE.txt) for f
 [dryrb-transaction]: https://dry-rb.org/gems/dry-transaction/
 [trailblazer-operation]: http://trailblazer.to/gems/operation/2.0/
 [medium-blogpost]: https://medium.com/quiqup-engineering/how-to-create-beautiful-pipelines-on-elixir-with-opus-f0b688de8994
+[opus_graph]: https://github.com/zorbash/opus_graph
