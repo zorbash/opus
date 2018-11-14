@@ -55,7 +55,7 @@ defmodule ArithmeticPipeline do
 end
 
 ArithmeticPipeline.call(41)
-# {:ok, %{number: 84.13436750126804}}
+# {:ok, 84.13436750126804}
 ```
 
 Read this [blogpost][medium-blogpost] to get started.
@@ -97,7 +97,7 @@ Example:
 defmodule CreateUserPipeline do
   use Opus.Pipeline
 
-  check :valid_params?, with: &match? %{email: email} when is_bitstring(email), &1
+  check :valid_params?, with: &match?(%{email: email} when is_bitstring(email), &1)
   # other stages to actually create the user
 end
 ```
@@ -231,13 +231,13 @@ defmodule CustomInstrumentation do
   def instrument(:pipeline_started, %{pipeline: ArithmeticPipeline}, %{input: input}) do
     # publish the metrics to specific backend
   end
-
-  def instrument(:stage_completed, %{stage: %{pipeline: ArithmeticPipeline}}, %{time: time}) do
+  
+  def instrument(:before_stage, %{stage: %{pipeline: pipeline}}, %{input: input}) do
     # publish the metrics to specific backend
   end
 
-  def instrument(:stage_completed, _metadata, %{time: time}) do
-    # publish the metrics to common backend
+  def instrument(:stage_completed, %{stage: %{pipeline: ArithmeticPipeline}}, %{time: time}) do
+    # publish the metrics to specific backend
   end
 
   def instrument(:pipeline_completed, %{pipeline: ArithmeticPipeline}, %{input: input, time: total_time}) do
