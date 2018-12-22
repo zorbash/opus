@@ -329,6 +329,11 @@ Read the available visualisation options [here][hexdocs-graph].
 * [dry.rb - transaction][dryrb-transaction]
 * [trailblazer - operation][trailblazer-operation]
 
+## Press
+
+* [Quiqup Engineering - How to Create Beautify Pipelines with Opus](https://medium.com/quiqup-engineering/how-to-create-beautiful-pipelines-on-elixir-with-opus-f0b688de8994)
+* [Pagerduty - How I Centralized our Scattered Business Logic Into One Clear Pipeline for our Elixir Webhook Service](https://www.pagerduty.com/eng/elixir-webhook-service/)
+
 ## License
 
 Copyright (c) 2018 Dimitris Zorbas, MIT License.
