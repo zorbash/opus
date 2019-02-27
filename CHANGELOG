@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
-### Changed
+## [0.5.2] - 2019-02-27
 
 * Opus.Graph has been extacted to a separate package. See: https://github.com/zorbash/opus_graph
 
