@@ -18,7 +18,7 @@ defmodule Opus.Pipeline.Stage.StepTest do
 
   alias TestPipeline, as: Subject
 
-  describe "step step behavior" do
+  describe "step behavior" do
     test "with a successful step, runs the next step" do
       assert {:ok, {:next, {:transformed, :value}}} = Subject.call(:value)
     end
