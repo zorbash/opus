@@ -35,7 +35,7 @@ defmodule Opus.Pipeline.StageTest do
     defmodule PipelineWithRetries do
       use Opus.Pipeline
 
-      step :http_request, retry_times: 3, retry_backoff: fn -> lin_backoff(10, 2) |> cap(100) end
+      step :http_request, retry_times: 3, retry_backoff: fn -> 10 |> linear_backoff(40) |> cap(100) end
 
       def http_request(:fail) do
         send self(), {:http_request, :os.timestamp()}
@@ -73,10 +73,10 @@ defmodule Opus.Pipeline.StageTest do
 
       assert_in_delta 0, time_diff(t1, start_time), 10
 
-      # lin_backoff values
-      assert_in_delta 20, time_diff(t2, t1), 10
-      assert_in_delta 40, time_diff(t3, t2), 10
-      assert_in_delta 80, time_diff(t4, t3), 10
+      # linear_backoff values
+      assert_in_delta 10, time_diff(t2, t1), 10
+      assert_in_delta 50, time_diff(t3, t2), 10
+      assert_in_delta 90, time_diff(t4, t3), 10
     end
 
     test "when a stage succeeds, it is not retried" do
@@ -193,7 +193,7 @@ defmodule Opus.Pipeline.StageTest do
         retry_times: 3,
         retry_backoff: :backoff
 
-      def backoff, do: lin_backoff(10, 3) |> cap(150)
+      def backoff, do: 10 |> linear_backoff(50) |> cap(150)
       def invalid_backoff, do: Backoffs.invalid_backoff()
     end
 
@@ -219,9 +219,9 @@ defmodule Opus.Pipeline.StageTest do
       [t1, t2, t3, t4 | _] = for {:total_failure, t} <- messages, do: t
 
       assert_in_delta 0, time_diff(t1, start_time), 10
-      assert_in_delta 30, time_diff(t2, t1), 10
-      assert_in_delta 90, time_diff(t3, t2), 10
-      assert_in_delta 150, time_diff(t4, t3), 10
+      assert_in_delta 10, time_diff(t2, t1), 10
+      assert_in_delta 60, time_diff(t3, t2), 10
+      assert_in_delta 110, time_diff(t4, t3), 10
     end
 
     test "with an invalid backoff function returning a Stream, it retries the correct number of times" do
