@@ -56,6 +56,31 @@ defmodule Opus.Pipeline.Stage do
     end
   end
 
+  def maybe_run({module, type, name, %{unless: :anonymous, stage_id: id} = opts}, input) do
+    callback = (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :unless end)).name
+    maybe_run({module, type, name, %{opts | unless: {module, callback, [input]}}}, input)
+  end
+
+  def maybe_run({module, type, name, %{unless: fun} = opts} = _stage, input)
+      when is_atom(fun),
+      do: maybe_run({module, type, name, %{opts | unless: {module, fun, [input]}}}, input)
+
+  def maybe_run({module, _type, name, %{unless: {_m, _f, _a} = condition} = opts} = stage, input) do
+    case Safe.apply(condition) do
+      false ->
+        with_retries({module, opts}, fn -> do_run(stage, input) end)
+
+      _ ->
+        module.instrument(:stage_skipped, %{stage: %{pipeline: module, name: name}}, %{
+          stage: name,
+          input: input
+        })
+
+        # Ignore this stage
+        :stage_skipped
+    end
+  end
+
   def maybe_run({module, _type, _name, opts} = stage, input),
     do: with_retries({module, opts}, fn -> do_run(stage, input) end)
 
