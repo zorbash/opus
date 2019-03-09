@@ -11,7 +11,9 @@ matrix:
     - otp_release: 19.2
       elixir: 1.5.1
     - otp_release: 20.0
-      elixir: 1.6.0
+      elixir: 1.6.6
+    - otp_release: 20.0
+      elixir: 1.7.3
 
 script:
   - "MIX_ENV=test mix do deps.get, credo, coveralls.travis"

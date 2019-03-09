@@ -151,7 +151,7 @@ options:
 defmodule ExternalApiPipeline do
   use Opus.Pipeline
 
-  step :http_request, retry_times: 8, retry_backoff: fn -> lin_backoff(10, 2) |> cap(100) end
+  step :http_request, retry_times: 8, retry_backoff: fn -> linear_backoff(10, 30) |> cap(100) end
 
   def http_request(_input) do
     # code for the actual request
