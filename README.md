@@ -29,7 +29,7 @@ end
     `{:ok, value} | {:error, error}`
 * A pipeline is a composition of stateless stages
 * A stage returning `{:error, _}` halts the pipeline
-* A stage may be skipped based on a condition function (`:if` option)
+* A stage may be skipped based on a condition function (`:if` and `:unless` option)
 * Exceptions are converted to `{:error, error}` tuples by default
 * An exception may be left to raise using the `:raise` option
 * Each stage of the pipeline is instrumented. Metrics are captured
@@ -46,10 +46,12 @@ defmodule ArithmeticPipeline do
   check :even?,           with: &(rem(&1, 2) == 0), error_message: :expected_an_even
   tee   :publish_number,  if: &Publisher.publishable?/1, raise: [ExternalError]
   step  :double,          if: :lucky_number?
+  step  :divide,          unless: :lucky_number?
   step  :randomize,       with: &(&1 * :rand.uniform)
   link  JSONPipeline
 
   def double(n), do: n * 2
+  def divide(n), do: n / 2
   def lucky_number?(n) when n in 42..1337, do: true
   def lucky_number?(_), do: false
 end
@@ -127,6 +129,7 @@ options:
   function reference. For the stage to be executed, the condition *must*
   return `true`. When the stage is skipped, the input is forwarded to
   the next step if there's one.
+* `:unless`: The same as the `:if` option, but act as having the opposite effect.
 * `:raise`: A list of exceptions to not rescue. Defaults to `false`
   which converts all exceptions to `{:error, %Opus.PipelineError{}}`
   values halting the pipeline.

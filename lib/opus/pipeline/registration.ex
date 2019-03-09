@@ -46,6 +46,7 @@ defmodule Opus.Pipeline.Registration do
   def maybe_define_callbacks(stage_id, name, opts) do
     [
       define_callback(:if, stage_id, name, Access.get(opts, :if)),
+      define_callback(:unless, stage_id, name, Access.get(opts, :unless)),
       define_callback(:with, stage_id, name, Access.get(opts, :with)),
       define_callback(:retry_backoff, stage_id, name, Access.get(opts, :retry_backoff))
     ]
