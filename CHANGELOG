@@ -4,9 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+### Added
+
+* `:unless` option to conditionally skip a stage
+
 ### Changed
 
-* Opus.Graph has been extacted to a separate package. See: https://github.com/zorbash/opus_graph
+* Opus.Graph has been extracted to a separate package. See: https://github.com/zorbash/opus_graph
 
 ## [0.5.1] - 2018-05-08
 

@@ -29,7 +29,7 @@ end
     `{:ok, value} | {:error, error}`
 * A pipeline is a composition of stateless stages
 * A stage returning `{:error, _}` halts the pipeline
-* A stage may be skipped based on a condition function (`:if` and `:unless` option)
+* A stage may be skipped based on a condition function (`:if` and `:unless` options)
 * Exceptions are converted to `{:error, error}` tuples by default
 * An exception may be left to raise using the `:raise` option
 * Each stage of the pipeline is instrumented. Metrics are captured
@@ -129,7 +129,8 @@ options:
   function reference. For the stage to be executed, the condition *must*
   return `true`. When the stage is skipped, the input is forwarded to
   the next step if there's one.
-* `:unless`: The same as the `:if` option, but act as having the opposite effect.
+* `:unless`: The opposite of the `:if` option, executes the step only
+    when the callback function returns `false`.
 * `:raise`: A list of exceptions to not rescue. Defaults to `false`
   which converts all exceptions to `{:error, %Opus.PipelineError{}}`
   values halting the pipeline.
@@ -274,7 +275,7 @@ Opus.Graph.generate(:your_app)
 # => {:ok, "Graph file has been written to your_app_opus_graph.png"}
 ```
 
-This needs the [`opus_graph`][opus_graph] package to be installed, add it in your
+:exclamation: This feature requires the [`opus_graph`][opus_graph] package to be installed, add it in your
 mix.exs.
 
 ```elixir
