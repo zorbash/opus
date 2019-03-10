@@ -4,9 +4,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.5.3] - 2019-03-10
+
 ### Added
 
 * `:unless` option to conditionally skip a stage
+
+## [0.5.2] - 2019-02-27
+
+### Changed
+
+* Removed `graphvix` from the mix file
 
 ### Changed
 
