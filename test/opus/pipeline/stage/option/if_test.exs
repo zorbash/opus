@@ -1,7 +1,7 @@
 defmodule Opus.Pipeline.Option.IfTest do
   use ExUnit.Case
 
-  describe "as atom - when the condition is truth" do
+  describe "as atom - when the condition is true" do
     defmodule PipelineWithTruthyAtomIf do
       use Opus.Pipeline
 

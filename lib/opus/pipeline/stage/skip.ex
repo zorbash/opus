@@ -11,7 +11,7 @@ defmodule Opus.Pipeline.Stage.Skip do
   defmodule CreateUserPipeline do
     use Opus.Pipeline
 
-    skip if: :user_exists?
+    skip :prevent_duplicates, if: :user_exists?
     step :persist_user
   end
   ```
@@ -24,9 +24,9 @@ defmodule Opus.Pipeline.Stage.Skip do
 
   @behaviour Stage
 
-  def run({module, type, [if: func], opts}, input) do
-    case Stage.maybe_run({module, type, nil, opts |> put_in([:if], func)}, input) do
-      :pipeline_skipped -> {:halt, :skipped}
+  def run(stage, input) do
+    case stage |> Stage.maybe_run(input) do
+      :pipeline_skipped -> {:halt, :pipeline_skipped}
       _ -> {:cont, input}
     end
   end

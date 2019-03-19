@@ -5,7 +5,7 @@ defmodule Opus.Pipeline.Stage.SkipTest do
     defmodule SingleSkipFalsePipeline do
       use Opus.Pipeline
 
-      skip if: :should_skip?
+      skip :some_name, if: :should_skip?
 
       def should_skip?(_), do: false
     end
@@ -23,7 +23,7 @@ defmodule Opus.Pipeline.Stage.SkipTest do
     defmodule SkipFalsePipeline do
       use Opus.Pipeline
 
-      skip if: :should_skip?
+      skip :some_name, if: :should_skip?
       step :sum_10, with: &(&1 + 10)
 
       def should_skip?(_), do: false
@@ -38,11 +38,11 @@ defmodule Opus.Pipeline.Stage.SkipTest do
     end
   end
 
-  describe "when the stage returns true" do
+  describe "when skip returns true" do
     defmodule SkipTruePipeline do
       use Opus.Pipeline
 
-      skip if: :should_skip?
+      skip :some_name, if: :should_skip?
       step :shouldnt_be_called, with: fn _ -> raise "Shoudn't raise" end
 
       def should_skip?(_), do: true
@@ -52,18 +52,18 @@ defmodule Opus.Pipeline.Stage.SkipTest do
       {:ok, %{subject: SkipTruePipeline}}
     end
 
-    test "returns a success tuple with :skipped as the second value", %{subject: subject} do
-      assert {:ok, :skipped} = subject.call(1)
+    test "returns a success tuple with the input as the second value", %{subject: subject} do
+      assert {:ok, 1} = subject.call(1)
     end
   end
 
-  describe "when more than one skip stage is added to the pipeline and the first skip returns true" do
+  describe "when more than one skips are added to the pipeline and the first skip returns true" do
     defmodule MultiSkipFirstTruePipeline do
       use Opus.Pipeline
 
-      skip if: :hope_it_skips
-      skip if: :not_gonna_skip
-      step :shouldnt_be_called, with: fn _ -> raise "Shoudn't raise" end
+      skip :some_name, if: :hope_it_skips
+      skip :some_other_name, if: :not_gonna_skip
+      step :shouldnt_be_called, with: fn _ -> raise "Shouldn't raise" end
 
       def hope_it_skips(_), do: true
       def not_gonna_skip(_), do: false
@@ -73,42 +73,42 @@ defmodule Opus.Pipeline.Stage.SkipTest do
       {:ok, %{subject: MultiSkipFirstTruePipeline}}
     end
 
-    test "returns a success tuple with :skipped as the second value", %{subject: subject} do
-      assert {:ok, :skipped} = subject.call(1)
+    test "returns a success tuple with the input skipped as the second value", %{subject: subject} do
+      assert {:ok, 1} = subject.call(1)
     end
   end
 
-  describe "when more than one skip stage is added to the pipeline and the second skip returns true" do
+  describe "when more than one skips are added to the pipeline and the second one returns true" do
     defmodule MultiSkipSecondTruePipeline do
       use Opus.Pipeline
 
-      skip if: :not_gonna_skip
-      skip if: :hope_it_skips
-      step :shouldnt_be_called, with: fn _ -> raise "Shoudn't raise" end
+      skip :a_name, if: :wont_skip
+      skip :other_name, if: :it_skips
+      step :shouldnt_be_called, with: fn _ -> raise "Shouldn't raise" end
 
-      def hope_it_skips(_), do: true
-      def not_gonna_skip(_), do: false
+      def wont_skip(_), do: true
+      def it_skips(_), do: false
     end
 
     setup do
       {:ok, %{subject: MultiSkipSecondTruePipeline}}
     end
 
-    test "returns a success tuple with :skipped as the second value", %{subject: subject} do
-      assert {:ok, :skipped} = subject.call(1)
+    test "returns a success tuple with the input as the second value", %{subject: subject} do
+      assert {:ok, 1} = subject.call(1)
     end
   end
 
-  describe "when more than one skip stage is added to the pipeline and all them return false" do
+  describe "when more than one skips are added to the pipeline and all them return false" do
     defmodule MultiSkipFalsePipeline do
       use Opus.Pipeline
 
-      skip if: :not_gonna_skip
-      skip if: :not_gonna_skip_also
+      skip :some_name, if: :wont_skip
+      skip :other_name, if: :other_wont_skip
       step :sum_10, with: &(&1 + 10)
 
-      def not_gonna_skip(_), do: false
-      def not_gonna_skip_also(_), do: false
+      def wont_skip(_), do: false
+      def other_wont_skip(_), do: false
     end
 
     setup do
@@ -124,10 +124,10 @@ defmodule Opus.Pipeline.Stage.SkipTest do
     defmodule SkipFalseNonBooleanPipeline do
       use Opus.Pipeline
 
-      skip if: :should_skip?
+      skip :some_name, if: :should_skip?
       step :sum_10, with: &(&1 + 10)
 
-      def should_skip?(_), do: 'anything_else'
+      def should_skip?(_), do: "not a boolean"
     end
 
     setup do
@@ -137,6 +137,31 @@ defmodule Opus.Pipeline.Stage.SkipTest do
     test "returns a success tuple as if the skip stage has returned false and next stage is called",
          %{subject: subject} do
       assert {:ok, 11} = subject.call(1)
+    end
+  end
+
+  describe "when linked by another module" do
+    defmodule ItSkipsPipeline do
+      use Opus.Pipeline, instrument?: false
+
+      skip :some_name, if: fn _ -> true end
+      step :raise, with: fn -> raise "I shouldn't be called" end
+    end
+
+    defmodule ItLinksPipeline do
+      use Opus.Pipeline, instrument?: false
+
+      step :double, with: &(&1 * 2)
+      link ItSkipsPipeline
+      step :triple, with: &(&1 * 3)
+    end
+
+    setup do
+      {:ok, %{subject: ItLinksPipeline}}
+    end
+
+    test "foobar", %{subject: subject} do
+      assert {:ok, 12} = subject.call(2)
     end
   end
 end

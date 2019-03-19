@@ -35,7 +35,9 @@ defmodule Opus.Pipeline.StageTest do
     defmodule PipelineWithRetries do
       use Opus.Pipeline
 
-      step :http_request, retry_times: 3, retry_backoff: fn -> 10 |> linear_backoff(40) |> cap(100) end
+      step :http_request,
+        retry_times: 3,
+        retry_backoff: fn -> 10 |> linear_backoff(40) |> cap(100) end
 
       def http_request(:fail) do
         send self(), {:http_request, :os.timestamp()}

@@ -10,7 +10,7 @@
       check: 2,
       link: 1,
       link: 2,
-      skip: 1,
+      skip: 2,
       instrument: 2,
       instrument: 3,
       send: 2
@@ -26,7 +26,7 @@
     check: 2,
     link: 1,
     link: 2,
-    skip: 1,
+    skip: 2,
     instrument: 2,
     instrument: 3,
     send: 2,

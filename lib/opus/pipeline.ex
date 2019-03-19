@@ -12,10 +12,10 @@ defmodule Opus.Pipeline do
         step :double, with: & &1 * 2
       end
 
-  The pipeline can be run calling a `call/1` function which is defined by using Opus.Pipeline.
+  The pipeline can be run calling a `call/1` function which is defined by `Opus.Pipeline`.
   Pipelines are intended to have a single parameter and always return a tagged tuple `{:ok, value} | {:error, error}`.
   A stage returning `{:error, error}` halts the pipeline. The error value is an `Opus.PipelineError` struct which
-  contains useful information to detect where was the error caused and why.
+  contains useful information to detect where the error was caused and why.
 
   ## Exception Handling
 
@@ -40,6 +40,8 @@ defmodule Opus.Pipeline do
   CreateUserPipeline.call(params, except: :send_notification)
   ```
   """
+  @type opts :: [only: [atom], except: [atom]]
+  @type result :: {:ok, any} | {:error, Opus.PipelineError.t()}
 
   defmacro __using__(opts) do
     quote location: :keep do
@@ -63,6 +65,8 @@ defmodule Opus.Pipeline do
       @doc false
       def pipeline?, do: true
 
+      @doc "The entrypoint function of the pipeline"
+      @spec call(any, Opus.Pipeline.opts()) :: Opus.Pipeline.result()
       def call(input, opts \\ %{}) do
         instrument? = Pipeline._opus_opts()[:instrument?]
 
@@ -97,6 +101,7 @@ defmodule Opus.Pipeline do
         end
       end
 
+      @doc false
       def _opus_opts, do: @opus_opts
 
       defp run_instrumented({type, name, opts} = stage, %{time: acc_time, input: input}) do
@@ -112,8 +117,14 @@ defmodule Opus.Pipeline do
           )
 
         case instrumented_return do
+          {status, %{time: time, input: :pipeline_skipped}} ->
+            {status, %{time: acc_time + time, input: input}}
+
           {status, %{time: time, input: new_input}} ->
             {status, %{time: acc_time + time, input: new_input}}
+
+          {status, :pipeline_skipped} ->
+            {status, %{time: acc_time + 0, input: input}}
 
           {status, new_input} ->
             {status, %{time: acc_time + 0, input: new_input}}
