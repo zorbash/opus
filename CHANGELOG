@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.6.0] - 2019-04-13
+
+### Added
+
+* `skip` macro to bypass a linked pipeline module. See: https://github.com/zorbash/opus#skip
+
 ## [0.5.3] - 2019-03-10
 
 ### Added
