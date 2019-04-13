@@ -15,69 +15,68 @@ defmodule Opus.Pipeline.Stage do
 
   alias Opus.{Safe, PipelineError}
 
-  def maybe_run({module, type, name, %{if: :anonymous, stage_id: id} = opts}, input) do
-    callback = (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :if end)).name
-    maybe_run({module, type, name, %{opts | if: {module, callback, [input]}}}, input)
+  @doc false
+  def maybe_run(
+        {module, type, name, %{conditional: {cond_type, :anonymous}, stage_id: id} = opts},
+        input
+      ) do
+    callback =
+      (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :conditional end)).name
+
+    maybe_run(
+      {module, type, name, %{opts | conditional: {cond_type, {module, callback, [input]}}}},
+      input
+    )
   end
 
-  def maybe_run({module, type, name, %{if: fun} = opts} = _stage, input)
-      when is_atom(fun),
-      do: maybe_run({module, type, name, %{opts | if: {module, fun, [input]}}}, input)
+  def maybe_run(
+        {module, :skip, name, %{conditional: {cond_type, {_m, _f, _a} = condition}}},
+        input
+      ) do
+    if eval_condition(cond_type, condition) do
+      module.instrument(:pipeline_skipped, %{stage: %{pipeline: module, name: name}}, %{
+        stage: name,
+        input: input
+      })
 
-  def maybe_run({module, :skip, name, %{if: {_m, _f, _a} = condition}}, input) do
-    case Safe.apply(condition) do
-      true ->
-        module.instrument(:pipeline_skipped, %{stage: %{pipeline: module, name: name}}, %{
-          stage: name,
-          input: input
-        })
-
-        # Stop the pipeline execution
-        :pipeline_skipped
-
-      _ ->
-        nil
+      # Stop the pipeline execution
+      :pipeline_skipped
+    else
+      nil
     end
   end
 
-  def maybe_run({module, _type, name, %{if: {_m, _f, _a} = condition} = opts} = stage, input) do
-    case Safe.apply(condition) do
-      true ->
-        with_retries({module, opts}, fn -> do_run(stage, input) end)
-
-      _ ->
-        module.instrument(:stage_skipped, %{stage: %{pipeline: module, name: name}}, %{
-          stage: name,
-          input: input
-        })
-
-        # Ignore this stage
-        :stage_skipped
-    end
+  def maybe_run(
+        {
+          module,
+          type,
+          name,
+          %{conditional: {cond_type, fun}} = opts
+        } = _stage,
+        input
+      )
+      when is_atom(fun) do
+    maybe_run(
+      {module, type, name, %{opts | conditional: {cond_type, {module, fun, [input]}}}},
+      input
+    )
   end
 
-  def maybe_run({module, type, name, %{unless: :anonymous, stage_id: id} = opts}, input) do
-    callback = (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :unless end)).name
-    maybe_run({module, type, name, %{opts | unless: {module, callback, [input]}}}, input)
-  end
+  def maybe_run(
+        {module, _type, name, %{conditional: {cond_type, {_m, _f, _a} = condition}} = opts} =
+          stage,
+        input
+      ) do
+    if eval_condition(cond_type, condition) do
+      with_retries({module, opts}, fn -> do_run(stage, input) end)
+    else
+      module.instrument(:stage_skipped, %{stage: %{pipeline: module, name: name}}, %{
+        stage: name,
+        input: input
+      })
 
-  def maybe_run({module, type, name, %{unless: fun} = opts} = _stage, input)
-      when is_atom(fun),
-      do: maybe_run({module, type, name, %{opts | unless: {module, fun, [input]}}}, input)
-
-  def maybe_run({module, _type, name, %{unless: {_m, _f, _a} = condition} = opts} = stage, input) do
-    case Safe.apply(condition) do
-      false ->
-        with_retries({module, opts}, fn -> do_run(stage, input) end)
-
-      _ ->
-        module.instrument(:stage_skipped, %{stage: %{pipeline: module, name: name}}, %{
-          stage: name,
-          input: input
-        })
-
-        # Ignore this stage
-        :stage_skipped
+      # Ignore this stage
+      :stage_skipped
     end
   end
 
@@ -201,4 +200,12 @@ defmodule Opus.Pipeline.Stage do
 
   defp do_run({module, type, name, %{} = opts}, input),
     do: do_run({module, type, name, Map.merge(opts, %{with: {module, name, [input]}})}, input)
+
+  defp eval_condition(cond_type, condition) do
+    case {cond_type, Safe.apply(condition)} do
+      {:if, true} -> true
+      {:unless, false} -> true
+      _ -> false
+    end
+  end
 end

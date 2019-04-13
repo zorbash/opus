@@ -45,15 +45,38 @@ defmodule Opus.Pipeline.Registration do
 
   def maybe_define_callbacks(stage_id, name, opts) do
     [
-      define_callback(:if, stage_id, name, Access.get(opts, :if)),
-      define_callback(:unless, stage_id, name, Access.get(opts, :unless)),
+      define_callback(:conditional, stage_id, name, ensure_valid_conditional!(opts)),
       define_callback(:with, stage_id, name, Access.get(opts, :with)),
       define_callback(:retry_backoff, stage_id, name, Access.get(opts, :retry_backoff))
     ]
   end
 
+  def ensure_valid_conditional!(opts) do
+    if_cond = Access.get(opts, :if)
+    unless_cond = Access.get(opts, :unless)
+
+    if if_cond && unless_cond do
+      raise CompileError,
+        file: __ENV__.file,
+        line: __ENV__.line,
+        description:
+          "Invalid stage conditional. For each stage you may define either an :if or an :unless option. Not both"
+    end
+
+    if_cond || unless_cond
+  end
+
   def normalize_opts(opts, id, callbacks) do
     callback_types = for %{stage_id: ^id, type: type} <- callbacks, do: type
-    Keyword.merge(opts, for(t <- callback_types, do: {t, :anonymous}))
+
+    for {k, v} <- opts, into: [] do
+      anonymous? = k in callback_types || (k in [:if, :unless] && :conditional in callback_types)
+      callback = if anonymous?, do: :anonymous, else: v
+
+      case k do
+        term when term in [:if, :unless] -> {:conditional, {term, callback}}
+        _ -> {k, callback}
+      end
+    end
   end
 end

@@ -69,7 +69,6 @@ example above you need to add `use Opus.Pipeline` to turn a module into
 a pipeline. A pipeline module is a composition of stages executed in
 sequence.
 
-
 ## Stages
 
 There are a few different types of stages for different use-cases.
@@ -115,6 +114,50 @@ It never halts the pipeline.
 This stage is to link with another Opus.Pipeline module. It calls
 `call/1` for the provided module. If the module is not an
 `Opus.Pipeline` it is ignored.
+
+#### Skip
+
+The `skip` macro can be used for linked pipelines.
+A linked pipeline may act as a true bypass, based on a condition,
+expressed as either `:if` or `:unless`. When skipped, none of the stages
+are executed and it returns the input, to be used by any next stages of
+the caller pipeline. A very common use-case is illustrated in the following example:
+
+
+```elixir
+defmodule RetrieveCustomerInformation do
+  use Opus.Pipeline
+
+  check :valid_query?
+  link FetchFromCache,    if: :cacheable?
+  link FetchFromDatabase, if: :db_backed?
+  step :serialize
+end
+```
+
+With `skip` it can be written as:
+
+```elixir
+defmodule RetrieveCustomerInformation do
+  use Opus.Pipeline
+
+  check :valid_query?
+  link FetchFromCache
+  link FetchFromDatabase
+  step :serialize
+end
+```
+
+A linked pipeline becomes:
+
+```elixir
+defmodule FetchFromCache do
+  use Opus.Pipeline
+
+  skip :assert_suitable, if: :cacheable?
+  step :retrive_from_cache
+end
+```
 
 ### Available options
 
@@ -235,7 +278,7 @@ defmodule CustomInstrumentation do
   def instrument(:pipeline_started, %{pipeline: ArithmeticPipeline}, %{input: input}) do
     # publish the metrics to specific backend
   end
-  
+
   def instrument(:before_stage, %{stage: %{pipeline: pipeline}}, %{input: input}) do
     # publish the metrics to specific backend
   end
@@ -254,6 +297,11 @@ end
 
 You may choose to provide some common options to all the stages of a pipeline.
 
+* `:raise`: A list of exceptions to not rescue. When set to `true`, Opus
+    does not handle any exceptions. Defaults to `false` which converts all exceptions
+    to `{:error, %Opus.PipelineError{}}` values halting the pipeline.
+* `:instrument?`: A boolean which defaults to `true`. Set to `false` to
+  skip instrumentation for a module.
 
 ```elixir
 defmodule ArithmeticPipeline do

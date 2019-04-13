@@ -3,6 +3,14 @@ defmodule Opus.PipelineError do
   Error struct capturing useful information to detect where an error was caused and why.
   """
 
+  @type t :: %__MODULE__{
+          error: struct,
+          input: any,
+          pipeline: module,
+          stage: atom,
+          stacktrace: [{module, atom, non_neg_integer, keyword}]
+        }
+
   defexception [:error, :pipeline, :stage, :input, :stacktrace]
 
   def message(%{error: error, pipeline: pipeline, stage: stage, input: input, stacktrace: trace}) do
