@@ -67,7 +67,7 @@ defmodule Opus.Pipeline do
 
       @doc "The entrypoint function of the pipeline"
       @spec call(any, Opus.Pipeline.opts()) :: Opus.Pipeline.result()
-      def call(input, opts \\ %{}) do
+      def call(input, opts \\ []) do
         instrument? = Pipeline._opus_opts()[:instrument?]
 
         unless instrument? == false do
