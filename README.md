@@ -386,6 +386,9 @@ Read the available visualisation options [here][hexdocs-graph].
 * [Quiqup Engineering - How to Create Beautify Pipelines with Opus](https://medium.com/quiqup-engineering/how-to-create-beautiful-pipelines-on-elixir-with-opus-f0b688de8994)
 * [Pagerduty - How I Centralized our Scattered Business Logic Into One Clear Pipeline for our Elixir Webhook Service](https://www.pagerduty.com/eng/elixir-webhook-service/)
 
+Using Opus in your company / project?  
+Let us know by submitting an issue describing how you use it.
+
 ## License
 
 Copyright (c) 2018 Dimitris Zorbas, MIT License.
