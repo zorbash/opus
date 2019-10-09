@@ -155,7 +155,7 @@ defmodule FetchFromCache do
   use Opus.Pipeline
 
   skip :assert_suitable, if: :cacheable?
-  step :retrive_from_cache
+  step :retrieve_from_cache
 end
 ```
 
