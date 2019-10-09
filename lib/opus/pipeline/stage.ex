@@ -161,7 +161,7 @@ defmodule Opus.Pipeline.Stage do
       do:
         {:halt,
          {:error,
-          format_error(put_in(e[:error], message), %{pipeline: module, stage: name, input: input})}}
+          format_error(%{e | error: message}, %{pipeline: module, stage: name, input: input})}}
 
   def handle_run({:error, %Opus.PipelineError{} = e}, _) do
     {:halt, {:error, e}}

@@ -83,4 +83,28 @@ defmodule Opus.Pipeline.Stage.LinkTest do
                    end
     end
   end
+
+  defmodule PipelineReturningAtomError do
+    use Opus.Pipeline
+
+    step :do_something
+
+    def do_something(_) do
+      {:error, "a message"}
+    end
+  end
+
+  defmodule PipelineLinkingErrorAtom do
+    use Opus.Pipeline
+
+    link PipelineReturningAtomError, error_message: "custom message"
+  end
+
+  describe "linking a pipeline with a stage which returns :error" do
+    alias PipelineLinkingErrorAtom, as: Subject
+
+    test "returns an error with the correct error message" do
+      assert {:error, %Opus.PipelineError{error: "custom message"}} = Subject.call(%{})
+    end
+  end
 end
