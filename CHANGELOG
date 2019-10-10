@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.6.1] - 2019-10-10
+
+### Fixed
+
+* Fixed a bug where the `:error_message` option would break a linked pipeline returning either
+  `{:error, "message"}` or `:error`
+
 ## [0.6.0] - 2019-04-13
 
 ### Added
