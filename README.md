@@ -290,6 +290,8 @@ defmodule CustomInstrumentation do
   def instrument(:pipeline_completed, %{pipeline: ArithmeticPipeline}, %{input: input, time: total_time}) do
     # publish the metrics to specific backend
   end
+
+  def instrument(_, _, _), do: nil
 end
 ```
 
