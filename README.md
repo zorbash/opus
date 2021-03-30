@@ -227,9 +227,11 @@ CreateUserPipeline.call(params, except: :send_notification)
 
 Instrumentation hooks which can be defined:
 
+* `:pipeline_started`: Called before a pipeline module is called
 * `:before_stage`: Called before each stage
 * `:stage_skipped`: Called when a conditional stage was skipped
 * `:stage_completed`: Called after each stage
+* `:pipeline_completed`: Called after pipeline module has returned
 
 You can disable all instrumentation callbacks for a stage using `instrument?: false`.
 
@@ -287,7 +289,7 @@ defmodule CustomInstrumentation do
     # publish the metrics to specific backend
   end
 
-  def instrument(:pipeline_completed, %{pipeline: ArithmeticPipeline}, %{input: input, time: total_time}) do
+  def instrument(:pipeline_completed, %{pipeline: ArithmeticPipeline}, %{result: result, time: total_time}) do
     # publish the metrics to specific backend
   end
 
