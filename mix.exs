@@ -41,7 +41,7 @@ defmodule Opus.Mixfile do
       {:retry, "~> 0.8"},
       {:telemetry, "~> 0.4", optional: true},
       {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.18.0", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.24.2", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.13", only: :test}
     ]
