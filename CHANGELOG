@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.7.0] - 2021-04-08
+
+### Added
+
+* `Opus.Telemetry` instrumentation module which emits `:telemetry` events. Read [more][post-opus-telemetry].
+
 ## [0.6.0] - 2019-04-13
 
 ### Added
@@ -83,3 +89,5 @@ Atom, constructed :"failed_check_#{stage_name}".
 ### Added
 
 * Initial release
+
+[post-opus-telemetry]: https://zorbash.com/post/phoenix-telemetry/

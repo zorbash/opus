@@ -14,7 +14,7 @@ The package can be installed by adding `opus` to your list of dependencies in `m
 
 ```elixir
 def deps do
-  [{:opus, "~> 0.6"}]
+  [{:opus, "~> 0.7"}]
 end
 ```
 
@@ -297,6 +297,20 @@ defmodule CustomInstrumentation do
 end
 ```
 
+### Telemetry
+
+Opus includes an instrumentation module which emits events using the `:telemetry` library.  
+To enable it, change your `config/config.exs` with:
+
+```elixir
+config :opus, :instrumentation, [Opus.Telemetry]
+```
+
+Browse the available events [here][opus-telemetry].
+
+For instructions to integrate Opus Telemetry metrics in your Phoenix
+application, read this [post][post-opus-telemetry].
+
 ## Module-Global Options
 
 You may choose to provide some common options to all the stages of a pipeline.
@@ -390,6 +404,7 @@ Read the available visualisation options [here][hexdocs-graph].
 * [Quiqup Engineering - How to Create Beautify Pipelines with Opus](https://medium.com/quiqup-engineering/how-to-create-beautiful-pipelines-on-elixir-with-opus-f0b688de8994)
 * [Pagerduty - How I Centralized our Scattered Business Logic Into One Clear Pipeline for our Elixir Webhook Service](https://www.pagerduty.com/eng/elixir-webhook-service/)
 * [A Slack bookmarking application in Elixir with Opus](https://zorbash.com/post/slack-bookmarks-collaboration-elixir/)
+* [Opus Telemetry](https://zorbash.com/post/phoenix-telemetry/)
 
 Using Opus in your company / project?  
 Let us know by submitting an issue describing how you use it.
@@ -406,3 +421,5 @@ See [LICENSE.txt](https://github.com/zorbash/opus/blob/master/LICENSE.txt) for f
 [trailblazer-operation]: http://trailblazer.to/gems/operation/2.0/
 [medium-blogpost]: https://medium.com/quiqup-engineering/how-to-create-beautiful-pipelines-on-elixir-with-opus-f0b688de8994
 [opus_graph]: https://github.com/zorbash/opus_graph
+[opus-telemetry]: https://hexdocs.pm/opus/Opus.Telemetry.html
+[post-opus-telemetry]: https://zorbash.com/post/phoenix-telemetry/
