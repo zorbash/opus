@@ -4,7 +4,7 @@ defmodule Opus.PipelineError do
   """
 
   @type t :: %__MODULE__{
-          error: struct,
+          error: any,
           input: any,
           pipeline: module,
           stage: atom,
