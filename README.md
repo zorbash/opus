@@ -177,8 +177,10 @@ options:
 * `:raise`: A list of exceptions to not rescue. Defaults to `false`
   which converts all exceptions to `{:error, %Opus.PipelineError{}}`
   values halting the pipeline.
-* `:error_message`: A String or Atom to replace the original error when
-  a stage fails.
+* `:error_message`: An error message to replace the original error when a
+  stage fails. It can be a String or Atom, which will be used directly in place
+  of the original message, or an anonymous function, which receives the input
+  of the failed stage and must return the error message to be used.
 * `:retry_times`: How many times to retry a failing stage, before
   halting the pipeline.
 * `:retry_backoff`: A backoff function to provide delay values for
