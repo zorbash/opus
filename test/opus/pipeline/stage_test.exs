@@ -283,6 +283,40 @@ defmodule Opus.Pipeline.StageTest do
     end
   end
 
+  describe ":error_message option, with a function" do
+    defmodule ErrorMessages do
+      def invalid(input), do: "Invalid input: #{input}"
+    end
+
+    defmodule ErrorMessageWithFunctionPipeline do
+      use Opus.Pipeline
+
+      step :double
+
+      step :maybe_fail,
+        error_message: fn n ->
+          "Can't work with #{n}"
+        end
+
+      step :fail_for_sure, error_message: &ErrorMessages.invalid/1
+
+      def double(n) when is_number(n), do: n * 2
+      def maybe_fail(10), do: raise("this will fail")
+      def maybe_fail(n), do: n
+      def fail_for_sure(), do: raise("intentional fail")
+    end
+
+    alias ErrorMessageWithFunctionPipeline, as: Subject
+
+    test "calls the anonymous function" do
+      assert {:error, %Opus.PipelineError{error: "Can't work with 10"}} = Subject.call(5)
+    end
+
+    test "calls the function reference" do
+      assert {:error, %Opus.PipelineError{error: "Invalid input: 12"}} = Subject.call(6)
+    end
+  end
+
   def time_diff(t2, t1) do
     :timer.now_diff(t2, t1) / 1000
   end

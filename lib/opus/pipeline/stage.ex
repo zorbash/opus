@@ -20,8 +20,7 @@ defmodule Opus.Pipeline.Stage do
         {module, type, name, %{conditional: {cond_type, :anonymous}, stage_id: id} = opts},
         input
       ) do
-    callback =
-      (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :conditional end)).name
+    callback = find_callback(module, :conditional, id)
 
     maybe_run(
       {module, type, name, %{opts | conditional: {cond_type, {module, callback, [input]}}}},
@@ -84,8 +83,7 @@ defmodule Opus.Pipeline.Stage do
     do: with_retries({module, opts}, fn -> do_run(stage, input) end)
 
   def with_retries({module, %{retry_times: times, stage_id: id, retry_backoff: :anonymous}}, fun) do
-    callback =
-      (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :retry_backoff end)).name
+    callback = find_callback(module, :retry_backoff, id)
 
     with_retries(
       {module, %{retry_times: times, stage_id: id, retry_backoff: {module, callback, []}}},
@@ -144,6 +142,16 @@ defmodule Opus.Pipeline.Stage do
     end
   end
 
+  def handle_run(:error, %{
+        stage: {module, _type, name, %{error_message: :anonymous, stage_id: id}},
+        input: input
+      }) do
+    callback = find_callback(module, :error_message, id)
+
+    message = Safe.apply({module, callback, [input]})
+    {:halt, {:error, %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
+  end
+
   def handle_run(:error, %{stage: {module, _type, name, %{error_message: message}}, input: input}) do
     {:halt, {:error, %PipelineError{error: message, pipeline: module, stage: name, input: input}}}
   end
@@ -153,6 +161,17 @@ defmodule Opus.Pipeline.Stage do
       {:halt,
        {:error,
         %PipelineError{error: "stage failed", pipeline: module, stage: name, input: input}}}
+
+  def handle_run({:error, e}, %{
+        stage: {module, _type, name, %{error_message: :anonymous, stage_id: id}},
+        input: input
+      }) do
+    callback = find_callback(module, :error_message, id)
+    message = Safe.apply({module, callback, [input]})
+
+    {:halt,
+     {:error, format_error(%{e | error: message}, %{pipeline: module, stage: name, input: input})}}
+  end
 
   def handle_run({:error, e}, %{
         stage: {module, _type, name, %{error_message: message}},
@@ -183,7 +202,7 @@ defmodule Opus.Pipeline.Stage do
   end
 
   defp do_run({module, type, name, %{with: :anonymous, stage_id: id} = opts}, input) do
-    callback = (module._opus_callbacks[id] |> Enum.find(fn %{type: t} -> t == :with end)).name
+    callback = find_callback(module, :with, id)
     do_run({module, type, name, %{opts | with: {module, callback, [input]}}}, input)
   end
 
@@ -207,5 +226,9 @@ defmodule Opus.Pipeline.Stage do
       {:unless, false} -> true
       _ -> false
     end
+  end
+
+  defp find_callback(module, type, stage_id) do
+    (module._opus_callbacks[stage_id] |> Enum.find(fn %{type: t} -> t == type end)).name
   end
 end
