@@ -4,9 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.8.0] - 2021-07-17
+
 ### Changed
 
-* You can now pass anonymous function or a function reference to `error_message`.
+* You can now pass anonymous functions or a function reference to `error_message`.
 
 ## [0.7.0] - 2021-04-08
 
