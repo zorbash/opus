@@ -10,6 +10,7 @@ defmodule Opus.Pipeline.StageFilter do
 
   import Enum, only: [reject: 2, filter: 2]
 
+  @doc false
   def call(stages, opts) do
     stages
     |> stage_filter(:except, opts[:except])

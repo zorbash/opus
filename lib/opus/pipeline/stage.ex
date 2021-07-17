@@ -1,7 +1,5 @@
 defmodule Opus.Pipeline.Stage do
-  @moduledoc """
-  Specification of the stage behavior
-  """
+  @moduledoc false
 
   @callback run(
               {

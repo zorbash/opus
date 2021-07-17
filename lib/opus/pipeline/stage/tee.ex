@@ -9,6 +9,7 @@ defmodule Opus.Pipeline.Stage.Tee do
 
   @behaviour Stage
 
+  @doc false
   def run(stage, input) do
     Stage.maybe_run(stage, input)
 

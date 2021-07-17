@@ -22,6 +22,7 @@ defmodule Opus.Pipeline.Stage.Check do
 
   @behaviour Stage
 
+  @doc false
   def run({module, type, name, opts} = stage, input) do
     case Stage.maybe_run(stage, input) do
       ret when ret in [true, :stage_skipped] ->

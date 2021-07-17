@@ -1,6 +1,6 @@
 defmodule Opus.Telemetry do
   @moduledoc ~S"""
-  Emits telemetry events
+  Emits telemetry events.
 
   To enable this instrumentation module, update your config/config.exs file with:
 
