@@ -39,7 +39,7 @@ defmodule Opus.Mixfile do
   defp deps do
     [
       {:retry, "~> 0.8"},
-      {:telemetry, "~> 0.4", optional: true},
+      {:telemetry, "~> 0.4 or ~> 1.0", optional: true},
       {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.24.2", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
