@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.8.1] - 2021-09-29
+
+### Changed
+
+* Depend on telemetry@1.0 where possible
+
 ## [0.8.0] - 2021-07-17
 
 ### Changed
