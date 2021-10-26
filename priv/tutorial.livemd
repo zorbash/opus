@@ -1,0 +1,199 @@
+# Opus
+
+## Your first pipeline
+
+```elixir
+Mix.install([{:opus, "~> 0.8"}])
+```
+
+Below you'll see a simple pipeline with two steps. It takes a number, adds 1 then multiplies by 2.
+When a module is made a pipeline with `use Opus.Pipeline` it can be called with a `call/1` function.
+
+So our module below can be called with:
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+ArithmeticPipeline.call(number)
+```
+
+```elixir
+defmodule ArithmeticPipeline do
+  use Opus.Pipeline
+
+  step(:add_one, with: &(&1 + 1))
+  step(:multiply_by_two)
+
+  def multiply_by_two(n), do: n * 2
+end
+```
+
+<!-- livebook:{"livebook_object":"cell_input","name":"input","reactive":true,"type":"number","value":"70"} -->
+
+```elixir
+{number, _} = IO.gets("input") |> Integer.parse()
+
+ArithmeticPipeline.call(number)
+```
+
+<!-- livebook:{"livebook_object":"cell_input","name":"input","type":"text","value":""} -->
+
+## Error Handling
+
+So far we've only defined `step` stages.
+
+This stage processes the input value and with a success value the next stage is called with that value. 
+With an error value the pipeline is halted and an `{:error, any}` is returned.
+
+```elixir
+defmodule ArithmeticPipelineWithErrors do
+  use Opus.Pipeline
+
+  step(:add_one, with: &(&1 + 1))
+  step(:multiply_by_two)
+  step(:add_three, with: &(&1 + 3))
+
+  def multiply_by_two(n) when n < 42, do: n * 2
+  def multiply_by_two(_), do: {:error, "I only handle numbers < 42"}
+end
+```
+
+<!-- livebook:{"livebook_object":"cell_input","name":"second input","reactive":true,"type":"number","value":"8"} -->
+
+Try this out with a number > 42 and you should see an `Opus.PipelineError`.
+As you can see when a step function returns an error tuple 
+like `{:error, "I only handle numbers < 42"}` the pipeline
+is halted an the next stages are not executed.
+
+```elixir
+{number, _} = IO.gets("second input") |> Integer.parse()
+
+ArithmeticPipelineWithErrors.call(number)
+```
+
+## Validating Input
+
+```elixir
+defmodule Validator do
+  use Opus.Pipeline
+
+  check(:valid_user, with: &match?(%{user: %{id: id}} when is_integer(id), &1))
+
+  check(:even_user, with: &(rem(&1.user.id, 2) == 0), error_message: "User should have an even id")
+end
+```
+
+<!-- livebook:{"livebook_object":"cell_input","name":"third input","reactive":true,"type":"number","value":"26"} -->
+
+```elixir
+{number, _} = IO.gets("third input") |> Integer.parse()
+
+Validator.call(%{user: %{id: number}})
+```
+
+The error message to return when a `check` fails is configurable. It can be an atom, string or a function.
+
+```elixir
+defmodule ValidatorWithError do
+  use Opus.Pipeline
+
+  check(:valid_user, with: &match?(%{user: %{id: id}} when is_integer(id), &1))
+
+  check(:even_user,
+    with: &(rem(&1.user.id, 2) == 0),
+    error_message: fn %{user: %{id: id}} ->
+      "Oh the user should have an even id, #{id} is not even"
+    end
+  )
+end
+```
+
+```elixir
+ValidatorWithError.call(%{user: %{id: 5}})
+```
+
+## Side-effects with the tee stage
+
+You can use the `tee` macro for side-effects. The return value in such stages is ignored.
+
+```elixir
+defmodule ArithmeticSideEffectsPipeline do
+  use Opus.Pipeline
+
+  step(:add_one, with: &(&1 + 1))
+
+  tee(:print_number,
+    with: fn n ->
+      IO.puts("The given number is.. #{n}")
+      # The following error will be ignored
+      raise "error"
+    end
+  )
+
+  step(:multiply_by_two)
+
+  def multiply_by_two(n), do: n * 2
+end
+```
+
+<!-- livebook:{"livebook_object":"cell_input","name":"fourth input","reactive":true,"type":"number","value":"27"} -->
+
+Notice how raising an error does not halt the pipeline with `tee`.
+
+```elixir
+{number, _} = IO.gets("fourth input") |> Integer.parse()
+
+ArithmeticSideEffectsPipeline.call(number)
+```
+
+## Linking Pipelines
+
+Pipelines can call other pipelines and there's the `link` macro to make that easier.
+`link` is essentially a `step` where the linked pipeline is called with the step function argument
+and the step returns the return value of the linked pipeline.
+
+```elixir
+defmodule ReadFirstInput do
+  use Opus.Pipeline
+
+  step(:read, with: &put_in(&1[:a], IO.gets("fifth input")))
+end
+
+defmodule ReadSecondInput do
+  use Opus.Pipeline
+
+  step(:read, with: &put_in(&1[:b], IO.gets("sixth input")))
+end
+
+defmodule Calculator do
+  use Opus.Pipeline
+
+  link(ReadFirstInput)
+  link(ReadSecondInput)
+  step(:parse)
+  step(:add, with: &(&1.a + &1.b), if: &match?(%{operation: :add}, &1))
+  step(:multiply, with: &(&1.a * &1.b), if: &match?(%{operation: :multiply}, &1))
+
+  def parse(%{a: a, b: b} = calculation) do
+    {a, _} = Integer.parse(a)
+    {b, _} = Integer.parse(b)
+
+    %{calculation | a: a, b: b}
+  end
+end
+```
+
+Notice how we leverage the `if` option to calculate based on the given operation.
+Both `if` and `unless` can be used to make a stage optional.
+
+<!-- livebook:{"livebook_object":"cell_input","name":"fifth input","reactive":true,"type":"number","value":"12"} -->
+
+<!-- livebook:{"livebook_object":"cell_input","name":"sixth input","reactive":true,"type":"number","value":"14"} -->
+
+```elixir
+Calculator.call(%{operation: :add})
+```
+
+```elixir
+Calculator.call(%{operation: :multiply})
+```

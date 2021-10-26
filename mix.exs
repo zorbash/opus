@@ -21,7 +21,7 @@ defmodule Opus.Mixfile do
         "coveralls.html": :test
       ],
       docs: [
-        extras: ["README.md"],
+        extras: ["README.md", "priv/tutorial.livemd"],
         main: "readme",
         source_url: "https://github.com/zorbash/opus"
       ]
@@ -41,7 +41,7 @@ defmodule Opus.Mixfile do
       {:retry, "~> 0.8"},
       {:telemetry, "~> 0.4 or ~> 1.0", optional: true},
       {:credo, "~> 0.8.10", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.24.2", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.25.5", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.13", only: :test}
     ]
