@@ -4,6 +4,8 @@
 [![Package Version](https://img.shields.io/hexpm/v/opus.svg)](https://hex.pm/packages/opus)
 [![Coverage Status](https://coveralls.io/repos/github/zorbash/opus/badge.svg?branch=master)](https://coveralls.io/github/zorbash/opus?branch=master)
 
+[![Livebook badge](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fhexdocs.pm%2Fopus%2Ftutorial.livemd)
+
 A framework for pluggable business logic components.
 
 ![example-image](https://i.imgur.com/WwuyojJ.png)
@@ -22,6 +24,7 @@ end
 
 * [hexdocs](https://hexdocs.pm/opus)
 * [wiki](https://github.com/zorbash/opus/wiki)
+* [tutorial](https://hexdocs.pm/opus/tutorial.html)
 
 ## Conventions
 
