@@ -4,7 +4,7 @@ defmodule Opus.Mixfile do
   def project do
     [
       app: :opus,
-      version: "0.8.1",
+      version: "0.8.2",
       elixir: "~> 1.6",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,

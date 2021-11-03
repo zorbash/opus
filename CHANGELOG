@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.8.2] - 2021-11-03
+
+### Added
+
+* A tutorial livebook documentation
+
 ## [0.8.1] - 2021-09-29
 
 ### Changed
