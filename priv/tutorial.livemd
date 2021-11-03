@@ -1,4 +1,4 @@
-# Opus
+# Tutorial
 
 ## Your first pipeline
 
