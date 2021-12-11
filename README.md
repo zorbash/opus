@@ -8,8 +8,7 @@
 
 A framework for pluggable business logic components.
 
-![example-image](https://i.imgur.com/J4lIWA4.png#gh-dark-mode-only)
-![example-image](https://i.imgur.com/WwuyojJ.png#gh-light-mode-only)
+![example-image](https://i.imgur.com/WwuyojJ.png)
 
 ## Installation
 
