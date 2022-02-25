@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.8.4] - 2022-02-25
+
+### Changed
+
+* Used reactive Kino.Inputs in tutorial live notebook
+
 ## [0.8.3] - 2021-11-03
 
 ### Changed

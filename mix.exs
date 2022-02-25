@@ -4,7 +4,7 @@ defmodule Opus.Mixfile do
   def project do
     [
       app: :opus,
-      version: "0.8.3",
+      version: "0.8.4",
       elixir: "~> 1.6",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -21,7 +21,7 @@ defmodule Opus.Mixfile do
         "coveralls.html": :test
       ],
       docs: [
-        extras: ["README.md", "priv/tutorial.livemd"],
+        extras: ["CHANGELOG", "README.md", "priv/tutorial.livemd"],
         main: "readme",
         source_url: "https://github.com/zorbash/opus"
       ]
@@ -51,10 +51,13 @@ defmodule Opus.Mixfile do
 
   defp package do
     [
-      files: ["lib", "mix.exs", "README.md", ".formatter.exs"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE.txt", ".formatter.exs"],
       maintainers: ["Dimitris Zorbas"],
       licenses: ["MIT"],
-      links: %{github: "https://github.com/zorbash/opus"}
+      links: %{
+        github: "https://github.com/zorbash/opus",
+        changelog: "https://github.com/zorbash/opus/master/CHANGELOG"
+      }
     ]
   end
 end

@@ -3,7 +3,7 @@
 ## Your first pipeline
 
 ```elixir
-Mix.install([{:opus, "~> 0.8"}])
+Mix.install([{:opus, "~> 0.8"}, {:kino, "~> 0.5"}])
 ```
 
 Below you'll see a simple pipeline with two steps. It takes a number, adds 1 then multiplies by 2.
@@ -28,15 +28,17 @@ defmodule ArithmeticPipeline do
 end
 ```
 
-<!-- livebook:{"livebook_object":"cell_input","name":"input","reactive":true,"type":"number","value":"70"} -->
+```elixir
+input = Kino.Input.number("number", default: 0)
+```
+
+<!-- livebook:{"reevaluate_automatically":true} -->
 
 ```elixir
-{number, _} = IO.gets("input") |> Integer.parse()
+number = Kino.Input.read(input)
 
 ArithmeticPipeline.call(number)
 ```
-
-<!-- livebook:{"livebook_object":"cell_input","name":"input","type":"text","value":""} -->
 
 ## Error Handling
 
@@ -58,15 +60,19 @@ defmodule ArithmeticPipelineWithErrors do
 end
 ```
 
-<!-- livebook:{"livebook_object":"cell_input","name":"second input","reactive":true,"type":"number","value":"8"} -->
-
 Try this out with a number > 42 and you should see an `Opus.PipelineError`.
 As you can see when a step function returns an error tuple 
 like `{:error, "I only handle numbers < 42"}` the pipeline
 is halted an the next stages are not executed.
 
 ```elixir
-{number, _} = IO.gets("second input") |> Integer.parse()
+input2 = Kino.Input.number("input2", default: 43)
+```
+
+<!-- livebook:{"reevaluate_automatically":true} -->
+
+```elixir
+number = Kino.Input.read(input2)
 
 ArithmeticPipelineWithErrors.call(number)
 ```
@@ -83,10 +89,14 @@ defmodule Validator do
 end
 ```
 
-<!-- livebook:{"livebook_object":"cell_input","name":"third input","reactive":true,"type":"number","value":"26"} -->
+```elixir
+input3 = Kino.Input.number("input3", default: 3)
+```
+
+<!-- livebook:{"reevaluate_automatically":true} -->
 
 ```elixir
-{number, _} = IO.gets("third input") |> Integer.parse()
+number = Kino.Input.read(input3)
 
 Validator.call(%{user: %{id: number}})
 ```
@@ -136,12 +146,16 @@ defmodule ArithmeticSideEffectsPipeline do
 end
 ```
 
-<!-- livebook:{"livebook_object":"cell_input","name":"fourth input","reactive":true,"type":"number","value":"27"} -->
-
 Notice how raising an error does not halt the pipeline with `tee`.
 
 ```elixir
-{number, _} = IO.gets("fourth input") |> Integer.parse()
+input4 = Kino.Input.number("input4", default: 5)
+```
+
+<!-- livebook:{"reevaluate_automatically":true} -->
+
+```elixir
+number = Kino.Input.read(input4)
 
 ArithmeticSideEffectsPipeline.call(number)
 ```
@@ -153,16 +167,24 @@ Pipelines can call other pipelines and there's the `link` macro to make that eas
 and the step returns the return value of the linked pipeline.
 
 ```elixir
+input5 = Kino.Input.text("input4", default: "5")
+```
+
+```elixir
+input6 = Kino.Input.text("input4", default: "6")
+```
+
+```elixir
 defmodule ReadFirstInput do
   use Opus.Pipeline
 
-  step(:read, with: &put_in(&1[:a], IO.gets("fifth input")))
+  step(:read, with: &put_in(&1[:a], Kino.Input.read(&1[:input_a])))
 end
 
 defmodule ReadSecondInput do
   use Opus.Pipeline
 
-  step(:read, with: &put_in(&1[:b], IO.gets("sixth input")))
+  step(:read, with: &put_in(&1[:b], Kino.Input.read(&1[:input_b])))
 end
 
 defmodule Calculator do
@@ -186,14 +208,14 @@ end
 Notice how we leverage the `if` option to calculate based on the given operation.
 Both `if` and `unless` can be used to make a stage optional.
 
-<!-- livebook:{"livebook_object":"cell_input","name":"fifth input","reactive":true,"type":"number","value":"12"} -->
-
-<!-- livebook:{"livebook_object":"cell_input","name":"sixth input","reactive":true,"type":"number","value":"14"} -->
+<!-- livebook:{"reevaluate_automatically":true} -->
 
 ```elixir
-Calculator.call(%{operation: :add})
+Calculator.call(%{operation: :add, input_a: input5, input_b: input6})
 ```
 
+<!-- livebook:{"reevaluate_automatically":true} -->
+
 ```elixir
-Calculator.call(%{operation: :multiply})
+Calculator.call(%{operation: :multiply, input_a: input5, input_b: input6})
 ```
