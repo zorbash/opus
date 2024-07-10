@@ -34,9 +34,7 @@ defmodule Opus.Pipeline.Registration do
 
           n ->
             IO.warn(
-              "Expected #{unquote(type)} of #{unquote(name)} to take either 0 or 1 parameters, got #{
-                n
-              }"
+              "Expected #{unquote(type)} of #{unquote(name)} to take either 0 or 1 parameters, got #{n}"
             )
         end
       end
