@@ -6,6 +6,8 @@ matrix:
       elixir: 1.6.6
     - otp_release: 23.2.5
       elixir: 1.11
+    - otp_release: 27.0
+      elixir: 1.17.2
 
 script:
   - "MIX_ENV=test mix do deps.get, credo, coveralls.travis"
