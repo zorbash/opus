@@ -210,10 +210,10 @@ defmodule Opus.Pipeline.Stage do
 
   defp do_run({module, _type, _name, %{with: with_fun} = opts}, input)
        when is_function(with_fun),
-       do: Safe.apply(with_fun, input, Map.merge(module._opus_opts, Map.take(opts, [:raise])))
+       do: Safe.apply(with_fun, input, Map.merge(module._opus_opts(), Map.take(opts, [:raise])))
 
   defp do_run({module, _type, _name, %{with: {_m, _f, _a} = with_mfa} = opts}, _input),
-    do: Safe.apply(with_mfa, Map.merge(module._opus_opts, Map.take(opts, [:raise])))
+    do: Safe.apply(with_mfa, Map.merge(module._opus_opts(), Map.take(opts, [:raise])))
 
   defp do_run({module, type, name, %{} = opts}, input),
     do: do_run({module, type, name, Map.merge(opts, %{with: {module, name, [input]}})}, input)
@@ -227,6 +227,6 @@ defmodule Opus.Pipeline.Stage do
   end
 
   defp find_callback(module, type, stage_id) do
-    (module._opus_callbacks[stage_id] |> Enum.find(fn %{type: t} -> t == type end)).name
+    (module._opus_callbacks()[stage_id] |> Enum.find(fn %{type: t} -> t == type end)).name
   end
 end

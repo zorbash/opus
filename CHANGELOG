@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+* Fix Elixir 1.17 warnings
+
 ## [0.8.4] - 2022-02-25
 
 ### Changed

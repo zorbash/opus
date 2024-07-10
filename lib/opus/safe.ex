@@ -10,13 +10,13 @@ defmodule Opus.Safe do
   def apply({m, f, a}, opts) do
     Kernel.apply(m, f, a)
   rescue
-    e -> handle_exception({e, System.stacktrace()}, opts)
+    e -> handle_exception({e, __STACKTRACE__}, opts)
   end
 
   def apply(fun, opts) when is_function(fun, 0) do
     fun.()
   rescue
-    e -> handle_exception({e, System.stacktrace()}, opts)
+    e -> handle_exception({e, __STACKTRACE__}, opts)
   end
 
   def apply(fun, arg) when is_function(fun, 1), do: apply(fun, arg, %{})
@@ -24,7 +24,7 @@ defmodule Opus.Safe do
   def apply(fun, arg, opts \\ %{}) when is_function(fun, 1) do
     fun.(arg)
   rescue
-    e -> handle_exception({e, System.stacktrace()}, opts)
+    e -> handle_exception({e, __STACKTRACE__}, opts)
   end
 
   defp handle_exception({e, stacktrace}, %{raise: true}) do
