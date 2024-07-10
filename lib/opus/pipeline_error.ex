@@ -14,8 +14,6 @@ defmodule Opus.PipelineError do
   defexception [:error, :pipeline, :stage, :input, :stacktrace]
 
   def message(%{error: error, pipeline: pipeline, stage: stage, input: input, stacktrace: trace}) do
-    "Pipeline #{inspect(pipeline)} failed at stage #{stage} with error: #{inspect(error)}, input #{
-      inspect(input)
-    }, stacktrace: #{inspect(trace)}"
+    "Pipeline #{inspect(pipeline)} failed at stage #{stage} with error: #{inspect(error)}, input #{inspect(input)}, stacktrace: #{inspect(trace)}"
   end
 end
