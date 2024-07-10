@@ -194,7 +194,7 @@ defmodule Opus.Pipeline do
       @doc false
       def stages, do: @opus_stages |> Enum.reverse()
       @opus_grouped_callbacks @opus_callbacks |> Enum.group_by(& &1.stage_id)
-      def _opus_callbacks, do: @opus_grouped_callbacks
+      def _opus_callbacks(), do: @opus_grouped_callbacks
       unquote(default_instrumentation)
     end
   end

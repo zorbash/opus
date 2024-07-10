@@ -196,7 +196,7 @@ defmodule Opus.Pipeline.StageTest do
         retry_backoff: :backoff
 
       def backoff, do: 10 |> linear_backoff(50) |> cap(150)
-      def invalid_backoff, do: Backoffs.invalid_backoff()
+      def invalid_backoff, do: Backoffs.invalid()
     end
 
     alias PipelineWithRetriesBackoffAtomReference, as: Subject
