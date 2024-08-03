@@ -1,6 +1,8 @@
 defmodule Opus.Mixfile do
   use Mix.Project
 
+  @source_url "https://github.com/zorbash/opus"
+
   def project do
     [
       app: :opus,
@@ -20,10 +22,13 @@ defmodule Opus.Mixfile do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
+      dialyzer: [plt_add_apps: [:telemetry]],
       docs: [
+        homepage_url: @source_url,
+        source_url: @source_url,
         extras: ["CHANGELOG", "README.md", "priv/tutorial.livemd"],
-        main: "readme",
-        source_url: "https://github.com/zorbash/opus"
+        formatters: ["html"],
+        main: "readme"
       ]
     ]
   end

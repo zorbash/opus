@@ -1,6 +1,6 @@
 # Opus
 
-[![Build Status](https://travis-ci.org/zorbash/opus.svg?branch=master)](https://travis-ci.org/zorbash/opus)
+[![Build Status](https://github.com/zorbash/opus/workflows/tests/badge.svg)](https://github.com/zorbash/opus/actions)
 [![Package Version](https://img.shields.io/hexpm/v/opus.svg)](https://hex.pm/packages/opus)
 [![Coverage Status](https://coveralls.io/repos/github/zorbash/opus/badge.svg?branch=master)](https://coveralls.io/github/zorbash/opus?branch=master)
 
