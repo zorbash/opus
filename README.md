@@ -406,7 +406,7 @@ Read the available visualisation options [here][hexdocs-graph].
 
 ## Press
 
-* [Quiqup Engineering - How to Create Beautify Pipelines with Opus](https://medium.com/quiqup-engineering/how-to-create-beautiful-pipelines-on-elixir-with-opus-f0b688de8994)
+* [Quiqup Engineering - How to Create Beautiful Pipelines with Opus](https://medium.com/quiqup-engineering/how-to-create-beautiful-pipelines-on-elixir-with-opus-f0b688de8994)
 * [Pagerduty - How I Centralized our Scattered Business Logic Into One Clear Pipeline for our Elixir Webhook Service](https://www.pagerduty.com/eng/elixir-webhook-service/)
 * [A Slack bookmarking application in Elixir with Opus](https://zorbash.com/post/slack-bookmarks-collaboration-elixir/)
 * [Opus Telemetry](https://zorbash.com/post/phoenix-telemetry/)
